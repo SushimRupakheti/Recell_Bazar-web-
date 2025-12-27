@@ -22,14 +22,14 @@ export default function AuthHeader() {
         <div className="flex items-center gap-8">
           <Link
             href="/login"
-            className="primary-btn flex no-underline items-center justify-center h-10 px-8"
+            className="primary-btn flex no-underline items-center justify-center h-10 px-8 "
           >
             Log In
           </Link>
 
           <Link
-            href="/signp"
-            className="secondary-btn flex no-underline items-center justify-center h-10 px-8"
+            href="/register"
+            className="secondary-btn flex no-underline items-center justify-center h-10 px-8 border"
           >
             SignUp
           </Link>
