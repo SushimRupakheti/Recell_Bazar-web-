@@ -20,15 +20,15 @@ export default function Footer() {
                     <p>+977-9818569990</p>
 
                     <div className="social-icons">
-                        <Link href="#" aria-label="Facebook">
+                        <Link href="https://www.facebook.com/susim.sushim" aria-label="Facebook">
                             <Facebook size={18} />
                         </Link>
 
-                        <Link href="#" aria-label="Instagram">
+                        <Link href="https://www.instagram.com/susim_sushim/" aria-label="Instagram">
                             <Instagram size={18} />
                         </Link>
 
-                        <Link href="#" aria-label="LinkedIn">
+                        <Link href="https://www.linkedin.com/in/sushim-rupakheti-16744b2a8/" aria-label="LinkedIn">
                             <Linkedin size={18} />
                         </Link>
                     </div>
