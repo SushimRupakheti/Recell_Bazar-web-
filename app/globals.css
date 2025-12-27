@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* * {
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-} */
+}
 
 body {
   font-family: Arial, sans-serif;
@@ -94,12 +94,12 @@ body {
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .auth-page {
     flex-direction: column;
     gap: 40px;
   }
-}
+} */
 
 
 .footer {

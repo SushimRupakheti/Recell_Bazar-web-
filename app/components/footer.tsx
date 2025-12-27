@@ -47,10 +47,15 @@ export default function Footer() {
                 {/* Column 4 */}
                 <div>
                     <h3>Payment Accepted</h3>
-                    <div className="payment">
-                        <span>eSewa</span>
+                    <div className="payment flex items-center gap-2">
+                        <img
+                            src="/esewa.png"
+                            alt="eSewa"
+                            className="w-16 h-auto object-contain"
+                        />
                     </div>
                 </div>
+
 
             </div>
 
