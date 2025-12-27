@@ -6,7 +6,7 @@ export default function AuthHeader() {
   return (
     <header className="w-full border-b border-gray-200 bg-white">
       {/* This container fixes the spacing */}
-      <div className="max-w-[1280px] mx-auto flex items-center justify-between px-6 py-3">
+      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
 
         {/* LEFT — Logo + Title */}
         <div className="flex items-center gap-3">
@@ -15,23 +15,23 @@ export default function AuthHeader() {
             alt="ReCell Bazar Logo"
             className="w-12 h-12 object-contain"
           />
-          <span className="text-2xl font-semibold text-[#020b23]">ReCell Bazar</span>
+          <span className="text-3xl font-semibold text-[#020b23]">ReCell Bazar</span>
         </div>
 
         {/* RIGHT — Navigation Buttons */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-8">
           <Link
             href="/login"
-            className="px-5 py-2 border border-[#0a7d8c] text-[#0a7d8c] rounded-md font-medium hover:bg-[#0a7d8c] hover:text-white transition"
+            className="primary-btn flex no-underline items-center justify-center h-10 px-8"
           >
             Log In
           </Link>
 
           <Link
-            href="/signup"
-            className="px-5 py-2 bg-[#0a7d8c] text-white rounded-md font-medium hover:opacity-90 transition"
+            href="/signp"
+            className="secondary-btn flex no-underline items-center justify-center h-10 px-8"
           >
-            Sign Up
+            SignUp
           </Link>
         </div>
 

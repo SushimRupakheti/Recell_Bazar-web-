@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import RegisterForm from "../_components/register_form";
+import AuthHeader from "@/app/components/auth_header";
 
 export default function RegisterPage() {
   return (
+    <>
+    <AuthHeader></AuthHeader>
     <div className="auth-page">
       {/* Left Side */}
       <div className="auth-left">
@@ -26,5 +29,6 @@ export default function RegisterPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }
