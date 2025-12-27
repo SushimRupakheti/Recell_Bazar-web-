@@ -2,9 +2,14 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registerSchema,RegisterFormData } from "../schema";
+import { registerSchema, RegisterFormData } from "../schema";
+import { useRouter } from "next/navigation"; // Next.js router
+import { useState } from "react";
 
 export default function RegisterForm() {
+  const router = useRouter();
+  const [successMessage, setSuccessMessage] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -15,6 +20,17 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     console.log(data);
+    
+    // Simulate registration API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Show success message
+    setSuccessMessage("Registration successful! Redirecting to login...");
+
+    // Redirect to login page after 2 seconds
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
   };
 
   return (
@@ -42,14 +58,14 @@ export default function RegisterForm() {
         />
         {errors.password && <span>{errors.password.message}</span>}
 
-        <button
-          type="submit"
-          className="primary-btn"
-          disabled={isSubmitting}
-        >
+        <button type="submit" className="primary-btn" disabled={isSubmitting}>
           {isSubmitting ? "Signing up..." : "Sign Up"}
         </button>
       </form>
+
+      {successMessage && (
+        <p className="text-green-600 mt-4">{successMessage}</p>
+      )}
     </>
   );
 }

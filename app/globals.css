@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* * {
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-} */
+}
 
 body {
   font-family: Arial, sans-serif;
@@ -65,6 +65,7 @@ body {
 .secondary-btn {
   width: 100%;
   padding: 12px;
+  border: #0a7d8c;
   color:#0a7d8c ;
   border: #0a7d8c;
   font-style: none;
@@ -94,12 +95,12 @@ body {
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .auth-page {
     flex-direction: column;
     gap: 40px;
   }
-}
+} */
 
 
 .footer {
@@ -149,13 +150,6 @@ body {
   cursor: pointer;
 }
 
-.payment span {
-  background: #1aa54a;
-  padding: 8px 14px;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
 
 .footer-bottom {
   border-top: 1px solid #1c2540;
@@ -178,3 +172,4 @@ body {
     grid-template-columns: 1fr;
   }
 }
+

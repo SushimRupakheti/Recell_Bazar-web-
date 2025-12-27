@@ -1,39 +1,40 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
 
 export default function AuthHeader() {
   return (
-    <header className="w-full border-b border-gray-200 px-10 py-4">
-      <div className="flex items-center justify-between">
-        {/* Left: Logo + Brand */}
-        <div className="flex items-center gap-2">
-          <Image
-            src="/logo.png" // update path if needed
+    <header className="w-full border-b border-gray-200 bg-white">
+      {/* This container fixes the spacing */}
+      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-3">
+
+        {/* LEFT — Logo + Title */}
+        <div className="flex items-center gap-3">
+          <img 
+            src="/Layer_1.png" 
             alt="ReCell Bazar Logo"
-            width={32}
-            height={32}
+            className="w-12 h-12 object-contain"
           />
-          <span className="text-lg font-semibold text-gray-900">
-            ReCell Bazar
-          </span>
+          <span className="text-3xl font-semibold text-[#020b23]">ReCell Bazar</span>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3">
+        {/* RIGHT — Navigation Buttons */}
+        <div className="flex items-center gap-8">
           <Link
             href="/login"
-            className="primary-btn"
+            className="primary-btn flex no-underline items-center justify-center h-10 px-8 "
           >
-            log In
+            Log In
           </Link>
 
           <Link
             href="/register"
-            className="secondary-btn"
+            className="secondary-btn flex no-underline items-center justify-center h-10 px-8 border"
           >
-            Sign Up
+            SignUp
           </Link>
         </div>
+
       </div>
     </header>
   );

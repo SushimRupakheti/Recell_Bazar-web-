@@ -6,6 +6,7 @@ import AuthHeader from "@/app/components/auth_header";
 export default function LoginPage() {
   return (
     <>
+    <AuthHeader></AuthHeader>
     <div className="auth-page">
       <div className="auth-left">
         <Image
