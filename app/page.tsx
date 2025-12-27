@@ -3,10 +3,8 @@ import Image from "next/image";
 export default function Home() {
   return (
     <main>
-      <h1 className="text-3xl font-bold text-white mb-6">Home Page</h1>
 
-      <div className="bg-[#0a7d8c] flex justify-center items-center py-10">
-
+      <div className="bg-[#0a7d8c] h-full flex justify-center items-center py-10">
 
         <div className="w-full lg:w-1/2 relative flex items-center justify-center h-[500px]">
 
@@ -27,7 +25,7 @@ export default function Home() {
             priority
           />
         </div>
-      </div>
+                </div>
     </main>
   );
 }
