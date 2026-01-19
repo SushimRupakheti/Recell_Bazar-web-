@@ -5,8 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterFormData } from "../schema";
 import { useRouter } from "next/navigation"; // Next.js router
 import { useState } from "react";
+import { handleRegister } from "@/lib/actions/auth-action";
+
+
 
 export default function RegisterForm() {
+    const [ error, setError ] = useState("");
   const router = useRouter();
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -18,20 +22,20 @@ export default function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
-    console.log(data);
-    
-    // Simulate registration API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+const onSubmit = async (data: RegisterFormData) => {
 
-    // Show success message
+  try {
+    const result = await handleRegister(data);
+    if (!result.success) throw new Error(result.message);
     setSuccessMessage("Registration successful! Redirecting to login...");
+    setTimeout(() => router.push("/login"), 2000);
+  } catch (err: any) {
+    setSuccessMessage(""); // clear previous success
+    setError(err.message || "Registration failed"); // ← now works correctly
+  }
+};
 
-    // Redirect to login page after 2 seconds
-    setTimeout(() => {
-      router.push("/login");
-    }, 2000);
-  };
+
 
   return (
     <>
@@ -39,22 +43,39 @@ export default function RegisterForm() {
       <p>Enter your details below for registration</p>
 
       <form className="auth-form" onSubmit={handleSubmit(onSubmit)}>
-        <input {...register("fullName")} placeholder="Full Name" />
-        {errors.fullName && <span>{errors.fullName.message}</span>}
+        <div className="flex items-start">
+          <div className="mr-2">
+            <input
+              {...register("firstName")}
+              placeholder="First Name"
+              style={{ width: "10rem", display: "block" }}
+            />
+            {errors.firstName && <span>{errors.firstName.message}</span>}
+          </div>
+          <div>
+            <input
+              {...register("lastName")}
+              placeholder="Last Name"
+              style={{ width: "10rem", display: "block" }}
+            />
+            {errors.lastName && <span>{errors.lastName.message}</span>}
+          </div>
+        </div>
 
-        <input {...register("email")} placeholder="Email" />
+        <input {...register("email")} placeholder="Email" className="w-full" />
         {errors.email && <span>{errors.email.message}</span>}
 
-        <input {...register("address")} placeholder="Address" />
+        <input {...register("address")} placeholder="Address" className="w-full" />
         {errors.address && <span>{errors.address.message}</span>}
 
-        <input {...register("contact")} placeholder="Contact No." />
-        {errors.contact && <span>{errors.contact.message}</span>}
+        <input {...register("contactNo")} placeholder="Contact No." className="w-full" />
+        {errors.contactNo && <span>{errors.contactNo.message}</span>}
 
         <input
           type="password"
           {...register("password")}
           placeholder="Password"
+          className="w-full"
         />
         {errors.password && <span>{errors.password.message}</span>}
 
@@ -69,3 +90,6 @@ export default function RegisterForm() {
     </>
   );
 }
+
+
+
