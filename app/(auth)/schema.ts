@@ -16,9 +16,13 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 
 export const registerSchema = z.object({
-  fullName: z
+  firstName: z
     .string()
-    .min(1, "Full name is required"),
+    .min(1, "First name is required"),
+
+  lastName: z
+    .string()
+    .min(1, "Last name is required"),
 
   email: z
     .string()
@@ -29,7 +33,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, "Address is required"),
 
-  contact: z
+  contactNo: z
     .string()
     .min(7, "Contact number is too short")
     .regex(/^[0-9+]+$/, "Invalid contact number"),
