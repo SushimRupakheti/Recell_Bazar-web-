@@ -1,6 +1,17 @@
 "use server";
 import { cookies } from "next/headers";
 
+interface UserData {
+    _id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+    [key: string]: any;
+}
+
 export const setAuthToken = async (token: string) => {
     const cookieStore = await cookies();
     cookieStore.set({ name: "auth_token", value: token })
