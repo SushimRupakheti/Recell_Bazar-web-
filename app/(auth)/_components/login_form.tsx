@@ -20,30 +20,48 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    setError("");
-    setSuccessMessage("");
+const onSubmit = async (data: LoginFormData) => {
+  setError("");
+  setSuccessMessage("");
 
-    try {
-      // Call backend login API
-      const result = await handleLogin(data);
+  try {
+    const result = await handleLogin(data);
 
-      if (!result.success) {
-        throw new Error(result.message || "Login failed");
-      }
-
-      // Show success message
-      setSuccessMessage("Login successful! Redirecting...");
-
-      // Redirect to dashboard after 1 second
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+    if (!result.success) {
+      throw new Error(result.message || "Login failed");
     }
-  };
+
+    // ✅ Normalize role
+    const role = result.data?.role?.toLowerCase();
+
+    console.log("Login result data:", result.data);
+    console.log("Normalized role:", role);
+
+    // ✅ Save cookies for middleware
+    document.cookie = `token=${result.data.token}; path=/`;
+    document.cookie = `role=${role}; path=/`;
+
+    setSuccessMessage("Login successful! Redirecting...");
+
+    setTimeout(() => {
+      try {
+        if (role === "admin") {
+          console.log("Redirecting to admin dashboard");
+          router.push("/admin/dashboard");
+        } else {
+          console.log("Redirecting to user dashboard");
+          router.push("/dashboard");
+        }
+      } catch (error) {
+        console.error("Redirect error:", error);
+      }
+    }, 1000);
+
+  } catch (err: any) {
+    setError(err.message || "Login failed");
+  }
+};
+
 
   return (
     <>
