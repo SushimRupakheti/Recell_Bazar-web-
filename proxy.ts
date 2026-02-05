@@ -1,21 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const publicPaths = ["/login", "/register", "/forget-password"];
+
 export default function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  const token = req.cookies.get("token")?.value; // set on login
-  const role = req.cookies.get("role")?.value;   // set on login (e.g. "admin" | "user")
+  const token = req.cookies.get("token")?.value;
+  const role = req.cookies.get("role")?.value;
 
+  const isPublicPath = publicPaths.some((p) => path.startsWith(p));
   const isAdminRoute = path.startsWith("/admin");
   const isUserRoute = path.startsWith("/user");
 
-  // must be logged in
-  if ((isAdminRoute || isUserRoute) && !token) {
+  if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // must be admin
+  if (token && isPublicPath) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   if (isAdminRoute && role !== "admin") {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  if (isUserRoute && role !== "user" && role !== "admin") {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
@@ -23,5 +32,13 @@ export default function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/user/:path*"],
+  matcher: [
+    "/",
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/user/:path*",
+    "/login",
+    "/register",
+    "/forget-password",
+  ],
 };

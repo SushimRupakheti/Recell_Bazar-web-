@@ -35,7 +35,7 @@ export default function UserDetailPage() {
       setBackendError(null);
       try {
         const token = getCookie("auth_token") || getCookie("token");
-        const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+        const res = await fetch(`http://localhost:5050/api/admin/users/${id}`, {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

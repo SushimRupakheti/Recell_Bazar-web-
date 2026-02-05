@@ -36,4 +36,55 @@ export const login = async (loginData: any) => {
         );
     }
 }
+export const requestPasswordReset = async (email: string) => {
+    try {
+        const response = await axios.post(API.AUTH.REQUEST_PASSWORD_RESET, { email });
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message || error.message || 'Request password reset failed');
+    }
+};
+
+export const resetPassword = async (token: string, newPassword: string) => {
+    try {
+        const response = await axios.post(API.AUTH.RESET_PASSWORD(token), { newPassword: newPassword });
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message || error.message || 'Reset password failed');
+    }
+};
+
+
+export type UserProfile = {
+  _id?: string;
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  email: string;
+  address?: string;
+  role?: string;
+};
+
+export const getUserById = async (id: string) => {
+  try {
+    const res = await axios.get(API.USERS.BY_ID(id));
+    return res.data; // expects { success, data, message }
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Failed to fetch user"
+    );
+  }
+};
+
+export const updateUserById = async (id: string, payload: Partial<UserProfile>) => {
+  try {
+    const res = await axios.put(API.USERS.UPDATE(id), payload);
+    return res.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Failed to update user"
+    );
+  }
+};
 
