@@ -1,6 +1,11 @@
 "use server";
 import { getAuthUser } from "./auth-action";
 import { getUserById, updateUserById } from "../api/users";
+import { clearAuthCookies } from "../cookie";
+import { logoutUserApi } from "../api/users";
+import axios from "@/lib/api/axios";
+import { getAuthToken } from "../cookie";
+
 
 export const fetchMyProfile = async () => {
   const authUser = await getAuthUser();
@@ -22,3 +27,53 @@ export const updateMyProfile = async (payload: {
   const res = await updateUserById(authUser.id, payload);
   return res;
 };
+
+
+export const logoutUser = async () => {
+  try {
+    // Call backend logout
+    await logoutUserApi();
+
+    // Clear frontend cookies
+    await clearAuthCookies();
+
+    return {
+      success: true,
+      message: "Logged out successfully",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Logout failed",
+    };
+  }
+};
+
+// Server-side admin helpers
+export const fetchAdminUsersServer = async () => {
+  try {
+    const token = await getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.get(`/api/admin/users`, { headers });
+    return res.data; }// expects { success, data }
+  catch (err: any) {
+    return { success: false, message: err.response?.data?.message || err.message || "Failed to fetch admin users" };
+  }
+};
+
+export const deleteAdminUserServer = async (id: string) => {
+  try {
+    const token = await getAuthToken();
+    const headers: Record<string, string> = {};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await axios.delete(`/api/admin/users/${id}`, { headers });
+    return res.data;
+  } catch (err: any) {
+    return { success: false, message: err.response?.data?.message || err.message || "Failed to delete admin user" };
+  }
+};
+
+
