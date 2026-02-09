@@ -11,23 +11,23 @@ import {
 
 const STATS = [
   {
-    value: "10.5k",
+    value: "10.5 K",
     label: "Sellers active our site",
     icon: Store,
   },
   {
-    value: "33k",
+    value: "803 K",
     label: "Monthly Productive Sale",
     icon: CircleDollarSign,
     highlight: true,
   },
   {
-    value: "45.5k",
+    value: "45.5 K",
     label: "Customer active in our site",
     icon: Users,
   },
   {
-    value: "25k",
+    value: "20 M+",
     label: "Anual gross sale in our site",
     icon: HandCoins,
   },
