@@ -1,9 +1,12 @@
 // server side processing of auth actions
 "use server";
 import { cookies } from "next/headers";
-import { login, register } from "../api/auth";
-import { Cookie } from "next/font/google";
+import { login, register, resetPassword,requestPasswordReset, getUserById, updateUserById } from "../api/auth";
+// import { Cookie } from "next/font/google";
 import { setAuthToken, setUserData } from "../cookie";
+import { getAuthToken } from "../cookie";
+import { jwtDecode} from "jwt-decode";
+
 
 export type AuthUser = {
   id: string;
@@ -96,15 +99,56 @@ export const handleLogout = async () => {
   cookieStore.set("role", "", { maxAge: 0 });
 };
 
+
+type JwtPayload = {
+  id: string;
+  email: string;
+  role: "admin" | "user";
+};
 export const getAuthUser = async (): Promise<AuthUser | null> => {
-  const cookieStore = cookies();
-  const userCookie = (await cookieStore).get("user_data");
-
-  if (!userCookie) return null;
-
   try {
-    return JSON.parse(userCookie.value) as AuthUser;
+    const token = await getAuthToken();
+    if (!token) return null;
+
+    const decoded = jwtDecode<JwtPayload>(token);
+
+    return {
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+    };
   } catch {
     return null;
   }
 };
+
+export const handleRequestPasswordReset = async (email: string) => {
+    try {
+        const response = await requestPasswordReset(email);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Password reset email sent successfully'
+            }
+        }
+        return { success: false, message: response.message || 'Request password reset failed' }
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || 'Request password reset action failed' }
+    }
+};
+
+export const handleResetPassword = async (token: string, newPassword: string) => {
+    try {
+        const response = await resetPassword(token, newPassword);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Password has been reset successfully'
+            }
+        }
+        return { success: false, message: response.message || 'Reset password failed' }
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || 'Reset password action failed' }
+    }
+};
+

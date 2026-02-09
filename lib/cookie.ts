@@ -1,5 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
+import {jwtDecode} from "jwt-decode";
+
 
 interface UserData {
     _id: string;
@@ -14,13 +16,24 @@ interface UserData {
 
 export const setAuthToken = async (token: string) => {
     const cookieStore = await cookies();
-    cookieStore.set({ name: "auth_token", value: token })
+    cookieStore.set({
+        name: "auth_token",
+        value: token,
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+    });
+
 }
 export const getAuthToken = async () => {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;
+      console.log("TOKEN FROM COOKIE:", token);
+      if (!token) return null;
     return token;
 }
+
 export const setUserData = async (userData: any) => {
     const cookieStore = await cookies();
     // cookie can only store string values
@@ -31,7 +44,7 @@ export const getUserData = async () => {
     const cookieStore = await cookies();
     const userDataStr = cookieStore.get("user_data")?.value;
     // convert string back to object -> JSON.parse
-    if(userDataStr){
+    if (userDataStr) {
         return JSON.parse(userDataStr);
     }
     return null;
@@ -42,3 +55,4 @@ export const clearAuthCookies = async () => {
     cookieStore.delete("auth_token");
     cookieStore.delete("user_data");
 }
+

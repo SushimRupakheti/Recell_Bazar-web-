@@ -2,12 +2,19 @@
 // Single source of truth for api endpoints
 
 export const API = {
-    AUTH:{
-        LOGIN: '/api/auth/login',
-        REGISTER: '/api/auth/register',
-    },
+  AUTH: {
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    REQUEST_PASSWORD_RESET: '/api/auth/request-password-reset',
+    RESET_PASSWORD: (token: string) => `/api/auth/reset-password/${token}`,
+  },
 
-    ADMIN: {
+    USERS: {
+    BY_ID: (id: string) => `/api/users/${id}`,
+    UPDATE: (id: string) => `/api/users/update/${id}`,
+  },
+
+  ADMIN: {
 
     USERS: {
       BASE: "/api/admin/users",          // GET list, POST create

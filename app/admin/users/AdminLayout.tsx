@@ -7,15 +7,42 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="min-h-screen flex bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
-      <aside className="w-64 bg-gradient-to-b from-teal-700 via-grey-700 to-green-700 text-white border-r flex flex-col p-6 shadow-xl">
-        <h2 className="text-2xl font-extrabold mb-10 tracking-wide text-white drop-shadow">Admin Panel</h2>
-        <nav className="flex flex-col gap-4">
-          <Link href="/admin/dashboard" className="px-4 py-2 rounded-lg bg-white-600 hover:bg-blue-800 transition-colors font-semibold">Dashboard</Link>
-          <Link href="/admin/users" className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-purple-800 transition-colors font-semibold">Users</Link>
+    <div className="min-h-screen flex bg-gray-950 text-gray-100">
+      
+      {/* Sidebar */}
+      <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col px-6 py-8">
+        <h2 className="text-xl font-semibold tracking-wide text-white mb-10">
+          Admin Panel
+        </h2>
+
+        <nav className="flex flex-col gap-2">
+          <Link
+            href="/admin/dashboard"
+            className="px-4 py-3 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition"
+          >
+            Dashboard
+          </Link>
+
+          <Link
+            href="/admin/users"
+            className="px-4 py-3 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition"
+          >
+            Users
+          </Link>
         </nav>
+
+        {/* Optional footer area */}
+        <div className="mt-auto pt-6 border-t border-gray-800 text-sm text-gray-500">
+          © {new Date().getFullYear()} Admin
+        </div>
       </aside>
-      <main className="flex-1 p-8">{children}</main>
+
+      {/* Main content */}
+      <main className="flex-1 bg-gray-950 p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
