@@ -14,9 +14,11 @@ function getCookie(name: string) {
 interface User {
   _id: string;
   email: string;
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   role: string;
+  address?: string;
+  contactNo?: string;
 }
 
 export default function UserEditPage() {
@@ -25,7 +27,7 @@ export default function UserEditPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState({ firstname: "", lastname: "", email: "", role: "user" });
+  const [form, setForm] = useState({ firstname: "", lastname: "", email: "", role: "user", address: "", contactNo: "" });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -34,23 +36,17 @@ export default function UserEditPage() {
       setLoading(true);
       setError(null);
       try {
-        const token = getCookie("auth_token") || getCookie("token");
-        const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": token ? `Bearer ${token}` : "",
-          },
-          mode: "cors"
-        });
+        const res = await fetch(`/api/admin/users/${id}`, { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
         setUser(data.data || null);
         setForm({
-          firstname: data.data?.firstname || "",
-          lastname: data.data?.lastname || "",
+          firstname: data.data?.firstName || data.data?.firstname || "",
+          lastname: data.data?.lastName || data.data?.lastname || "",
           email: data.data?.email || "",
-          role: data.data?.role || "user"
+          role: data.data?.role || "user",
+          address: data.data?.address || "",
+          contactNo: data.data?.contactNo || "",
         });
 
       } catch (err: any) {
@@ -72,18 +68,34 @@ export default function UserEditPage() {
     setSaving(true);
     setError(null);
     try {
-      const token = getCookie("auth_token") || getCookie("token");
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+      const payload = {
+        firstName: form.firstname,
+        lastName: form.lastname,
+        email: form.email,
+        role: form.role,
+        address: form.address,
+        contactNo: form.contactNo,
+        // include legacy keys just in case backend expects them
+        firstname: form.firstname,
+        lastname: form.lastname,
+      };
+
+      const res = await fetch(`/api/admin/users/${id}`, {
         method: "PUT",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": token ? `Bearer ${token}` : "",
         },
-        mode: "cors",
-        body: JSON.stringify(form)
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to update user");
+      if (!res.ok) {
+        let msg = "Failed to update user";
+        try {
+          const errData = await res.json();
+          msg = errData.message || msg;
+        } catch {}
+        throw new Error(msg);
+      }
       alert("User updated successfully");
     } catch (err: any) {
       setError(err.message || "Error updating user");
@@ -109,7 +121,7 @@ export default function UserEditPage() {
                 name="firstname"
                 value={form.firstname}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border border-gray-300 bg-gray-100 px-3 py-2 rounded text-gray-900"
                 required
               />
             </div>
@@ -120,7 +132,7 @@ export default function UserEditPage() {
                 name="lastname"
                 value={form.lastname}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border border-gray-300 bg-gray-100 px-3 py-2 rounded text-gray-900"
                 required
               />
             </div>
@@ -132,10 +144,30 @@ export default function UserEditPage() {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded text-gray-900 placeholder:text-gray-400 bg-white"
+                className="w-full border border-gray-300 bg-gray-100 px-3 py-2 rounded text-gray-900 placeholder:text-gray-400"
                 required
                 autoComplete="off"
                 style={{ opacity: 1 }}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold text-purple-700">Address</label>
+              <input
+                type="text"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                className="w-full border border-gray-300 bg-gray-100 px-3 py-2 rounded text-gray-900"
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold text-purple-700">Contact Number</label>
+              <input
+                type="text"
+                name="contactNo"
+                value={form.contactNo}
+                onChange={handleChange}
+                className="w-full border border-gray-300 bg-gray-100 px-3 py-2 rounded text-gray-900"
               />
             </div>
             <div>
@@ -144,7 +176,7 @@ export default function UserEditPage() {
                 name="role"
                 value={form.role}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded text-gray-900 bg-white"
+                className="w-full border border-gray-300 bg-gray-100 px-3 py-2 rounded text-gray-900"
                 style={{ opacity: 1 }}
               >
                 <option value="user">User</option>

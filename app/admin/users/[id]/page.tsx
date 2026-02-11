@@ -17,6 +17,11 @@ interface User {
   lastname: string;
   email: string;
   role: string;
+  profileImage?: string | null;
+  contactNo?: string;
+  address?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export default function UserDetailPage() {
@@ -34,26 +39,23 @@ export default function UserDetailPage() {
       setError(null);
       setBackendError(null);
       try {
-        const token = getCookie("auth_token") || getCookie("token");
-        const res = await fetch(`http://localhost:5050/api/admin/users/${id}`, {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": token ? `Bearer ${token}` : "",
-          },
-          mode: "cors"
-        });
+        const res = await fetch(`/api/admin/users/${id}`, { credentials: "include" });
         if (!res.ok) {
           let msg = "Failed to fetch user";
           try {
             const errData = await res.json();
             msg = errData.message || msg;
             setBackendError(JSON.stringify(errData, null, 2));
-          } catch { }
+          } catch {}
           throw new Error(msg);
         }
         const data = await res.json();
-        setUser(data.data || null);
+        // Normalize profileImage key if backend returns profileImage or profile_image
+        const u = data.data || null;
+        if (u) {
+          u.profileImage = u.profileImage || u.profile_image || u.profileImageUrl || null;
+        }
+        setUser(u);
       } catch (err: any) {
         setError(err.message || "Error fetching user");
       } finally {
@@ -77,19 +79,57 @@ export default function UserDetailPage() {
             )}
           </div>
         ) : user ? (
-          <div className="bg-white rounded-lg shadow-lg p-6 border-l-8 border-blue-400 max-w-lg mx-auto">
-            <div className="mb-4">
-              <span className="block text-lg font-semibold text-purple-700 mb-2">User ID:</span>
-              <span className="font-mono bg-blue-50 px-3 py-2 rounded text-blue-800 text-lg">{user._id}</span>
-            </div>
-            <div className="mb-2">
-              <span className="text-blue-700">{user.firstname} {user.lastname}</span>
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Email:</span> <span className="text-purple-700">{user.email}</span>
-            </div>
-            <div className="mb-2">
-              <span className="font-semibold text-gray-700">Role:</span> <span className={user.role.toLowerCase() === "admin" ? "text-green-600 font-bold" : "text-yellow-600 font-bold"}>{user.role.toUpperCase()}</span>
+          <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200 max-w-3xl mx-auto">
+            <div className="flex gap-8 items-start">
+              <div className="flex-shrink-0">
+                <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shadow">
+                  {user.profileImage ? (
+                    <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-full bg-gray-100 text-gray-400 text-xl font-semibold">
+                      {((user.firstname || "").charAt(0) || "") + ((user.lastname || "").charAt(0) || "")}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <a href={`/admin/users/${user._id}/edit`} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Edit</a>
+                  <a href="/admin/users" className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50">Back</a>
+                </div>
+              </div>
+
+              <div className="flex-1">
+                <div className="mb-4">
+                  <h2 className="text-2xl font-semibold text-gray-800">{user.firstname} {user.lastname}</h2>
+                  <p className="text-sm text-gray-500 mt-1">User ID: <span className="font-mono text-gray-700 ml-2">{user._id}</span></p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 rounded">
+                    <div className="text-xs text-gray-500">Email</div>
+                    <div className="text-sm text-gray-800">{user.email}</div>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded">
+                    <div className="text-xs text-gray-500">Role</div>
+                    <div className={`text-sm font-semibold ${user.role && user.role.toLowerCase() === 'admin' ? 'text-green-700' : 'text-gray-800'}`}>{(user.role || '').toUpperCase()}</div>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded">
+                    <div className="text-xs text-gray-500">Contact</div>
+                    <div className="text-sm text-gray-800">{user.contactNo || '—'}</div>
+                  </div>
+
+                  <div className="p-4 bg-gray-50 rounded">
+                    <div className="text-xs text-gray-500">Address</div>
+                    <div className="text-sm text-gray-800">{user.address || '—'}</div>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-sm text-gray-500">
+                  <div>Created: {user.createdAt ? new Date(user.createdAt).toLocaleString() : '—'}</div>
+                  <div>Updated: {user.updatedAt ? new Date(user.updatedAt).toLocaleString() : '—'}</div>
+                </div>
+              </div>
             </div>
           </div>
         ) : (

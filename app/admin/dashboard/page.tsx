@@ -25,17 +25,16 @@ export default function AdminDashboardPage() {
     const fetchUsers = async () => {
       setLoading(true);
       setError(null);
-      try {
-        const token = getCookie("auth_token") || getCookie("token");
-        const res = await fetch("http://localhost:5050/api/admin/users", {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": token ? `${token}` : "",
-          },
-          mode: "cors"
-        });
-        if (!res.ok) throw new Error("Failed to fetch users");
+        try {
+        const res = await fetch("/api/admin/users", { credentials: "include" });
+        if (!res.ok) {
+          let msg = "Failed to fetch users";
+          try {
+            const errData = await res.json();
+            msg = errData.message || msg;
+          } catch {}
+          throw new Error(msg);
+        }
         const data = await res.json();
         setUsers(Array.isArray(data) ? data : data.data || []);
       } catch (err: any) {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const publicPaths = [
-  "/auth/login",
-  "/auth/register",
-  "/auth/forget_password",
-  "/auth/reset-password",
+  "/login",
+  "/register",
+  "/forget_password",
+  "/reset-password",
 ];
 
 export default function proxy(req: NextRequest) {
@@ -19,7 +19,7 @@ export default function proxy(req: NextRequest) {
   const isUserRoute = path.startsWith("/user");
 
   if (!token && !isPublicPath) {
-    return NextResponse.redirect(new URL("/auth/login", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   if (token && isPublicPath) {
@@ -27,7 +27,7 @@ export default function proxy(req: NextRequest) {
   }
 
   if (isAdminRoute && role !== "admin") {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/admin/dashboard", req.url));
   }
 
   if (isUserRoute && role !== "user" && role !== "admin") {
@@ -38,16 +38,16 @@ export default function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/admin/:path*", "/user/:path*", "/auth/:path*"],
+  matcher: ["/", "/dashboard/:path*", "/admin/:path*", "/user/:path*"],
 };
 // import { NextRequest, NextResponse } from "next/server";
 // import { jwtDecode } from "jwt-decode";
 
 // const publicPaths = [
-//   "/auth/login",
-//   "/auth/register",
-//   "/auth/forget_password",
-//   "/auth/reset-password",
+//   "/login",
+//   "/register",
+//   "/forget_password",
+//   "/reset-password",
 // ];
 
 // export default function proxy(req: NextRequest) {
@@ -71,7 +71,7 @@ export const config = {
 //   const isUserRoute = path.startsWith("/user");
 
 //   if (!token && !isPublicPath) {
-//     return NextResponse.redirect(new URL("/auth/login", req.url));
+//     return NextResponse.redirect(new URL("/login", req.url));
 //   }
 
 //   if (token && isPublicPath) {
@@ -90,5 +90,5 @@ export const config = {
 // }
 
 // export const config = {
-//   matcher: ["/", "/dashboard/:path*", "/admin/:path*", "/user/:path*", "/auth/:path*"],
+//   matcher: ["/", "/dashboard/:path*", "/admin/:path*", "/user/:path*"],
 // };

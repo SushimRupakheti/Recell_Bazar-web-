@@ -164,7 +164,7 @@ export default function ProfilePage() {
                 try {
                   const res = await fetch('/api/auth/logout', { method: 'POST' });
                   if (res.ok) {
-                    router.replace('/auth/login');
+                    router.replace('/login');
                   } else {
                     toast.error('Logout failed');
                   }
