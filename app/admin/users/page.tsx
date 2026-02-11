@@ -1,4 +1,6 @@
 import AdminLayout from "./AdminLayout";
+import UserActions from "./_components/UserActions";
+import Link from "next/link";
 import { fetchAdminUsersServer } from "@/lib/actions/user-action";
 
 type User = {
@@ -17,7 +19,18 @@ export default async function UsersPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Page Heading */}
-        <h1 className="text-3xl font-bold text-white">Users</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-white">Users</h1>
+          <Link
+            href="/admin/users/create"
+            className="inline-flex items-center justify-center rounded-md bg-green-600 hover:bg-green-700 text-white px-3 py-2 text-sm font-medium"
+            aria-label="Create user"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+          </Link>
+        </div>
 
         {/* Users Table */}
         <div className="overflow-x-auto rounded-lg border border-gray-800 bg-gray-900">
@@ -56,21 +69,7 @@ export default async function UsersPage() {
                       </span>
                     </td>
                     <td className="px-8 py-8">
-                      <div className="flex justify-end gap-4">
-                        <a
-                          href={`/admin/users/${user._id}`}
-                          className="px-5 py-3 rounded-lg bg-gray-800 text-gray-200 hover:bg-gray-700 hover:text-white transition"
-                        >
-                          View
-                        </a>
-
-                        <a
-                          href={`/admin/users/${user._id}/edit`}
-                          className="px-5 py-3 rounded-lg bg-blue-900/40 text-blue-400 hover:bg-blue-900/60 transition"
-                        >
-                          Edit
-                        </a>
-                      </div>
+                      <UserActions id={user._id} />
                     </td>
                   </tr>
                 ))}
