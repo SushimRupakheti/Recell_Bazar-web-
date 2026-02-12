@@ -27,4 +27,12 @@ export const API = {
       DELETE: (id: string) => `/api/admin/users/${id}`, // DELETE
     },
   },
+  ITEMS: {
+    CREATE: "/api/items",
+    ALL: "/api/items",
+    BY_ID: (id: string) => `/api/items/${id}`,
+    BY_SELLER: (sellerId: string) => `/api/items/user/${sellerId}`,
+    UPDATE: (id: string) => `/api/items/${id}`,
+    DELETE: (id: string) => `/api/items/${id}`,
+  },
 } as const;

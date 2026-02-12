@@ -31,25 +31,28 @@ export default function CreateUserPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const formData = new FormData();
-    // include both legacy and camelCase keys
-    formData.append("firstname", form.firstname);
-    formData.append("lastname", form.lastname);
-    formData.append("firstName", form.firstname);
-    formData.append("lastName", form.lastname);
-    formData.append("email", form.email);
-    formData.append("password", form.password);
-    formData.append("address", (form as any).address || "");
-    formData.append("contactNo", (form as any).contactNo || "");
+    // Build JSON payload (backend expects an object)
+    const payload = {
+      firstName: form.firstname,
+      lastName: form.lastname,
+      email: form.email,
+      password: form.password,
+      contactNo: (form as any).contactNo || "",
+      address: (form as any).address || "",
+    };
+
     if (form.image) {
-      formData.append("image", form.image);
+      // image upload via multipart isn't supported by backend/register in this proxy flow.
+      // For now ignore image and proceed with JSON. We can add multipart support later.
+      console.warn("Image present but will not be uploaded with this request");
     }
 
     try {
       const res = await fetch(`/api/admin/users`, {
         method: "POST",
         credentials: "include",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {

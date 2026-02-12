@@ -4,6 +4,7 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
 
 export async function GET(req: Request) {
   try {
+    // Forward GET to backend users list endpoint
     const url = `${BASE}/api/admin/users`;
 
     const cookie = req.headers.get("cookie") || "";
@@ -45,7 +46,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const url = `${BASE}/api/admin/users`;
+    // Forward POST to backend register endpoint
+    const url = `${BASE}/api/admin/users/register`;
 
     const cookie = req.headers.get("cookie") || "";
     const auth = req.headers.get("authorization") || "";
@@ -83,22 +85,25 @@ export async function POST(req: Request) {
       });
     }
 
-    // Non-OK: try to parse JSON, otherwise return text as message
+    // Non-OK: forward backend response body and status code to the client
     let parsed: any = null;
+    let bodyText: string = "";
+    const ctBackend = res.headers.get("content-type") || "text/plain";
     try {
-      parsed = await res.json();
-    } catch {
-      try {
-        parsed = await res.text();
-      } catch {
-        parsed = null;
+      if (ctBackend.includes("application/json")) {
+        parsed = await res.json();
+        bodyText = JSON.stringify(parsed);
+      } else {
+        bodyText = await res.text();
       }
+    } catch {
+      bodyText = "";
     }
 
-    return NextResponse.json(
-      { success: false, status: res.status, message: parsed || "Backend error" },
-      { status: 500 }
-    );
+    return new NextResponse(bodyText || "", {
+      status: res.status,
+      headers: { "content-type": ctBackend },
+    });
   } catch (err: any) {
     return NextResponse.json({ success: false, message: err.message || "Proxy failed" }, { status: 500 });
   }
