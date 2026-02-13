@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Star } from "lucide-react";
 
 type ItemCardProps = {
@@ -60,7 +61,10 @@ export default function ItemCard({ item }: ItemCardProps) {
 
   const year = item.year ?? "-";
 
-  return (
+  const rawId = item._id ?? item.id ?? null;
+  const id = rawId && String(rawId) !== "undefined" && String(rawId) !== "null" ? String(rawId) : null;
+
+  const card = (
     <div className="group rounded-xl border border-gray-200 bg-white p-2.5 shadow-[0_1px_0_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
@@ -99,6 +103,15 @@ export default function ItemCard({ item }: ItemCardProps) {
           <span className="font-medium text-gray-600">{year}</span>
         </div>
       </div>
-    </div>
+      </div>
+  );
+
+  if (!id) return card;
+
+  const href = `/item/${id}`;
+  return (
+    <Link href={href} className="block">
+      {card}
+    </Link>
   );
 }

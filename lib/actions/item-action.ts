@@ -65,6 +65,14 @@ export const handleGetAllItems = async () => {
 ========================= */
 
 export const handleGetItemById = async (id: string) => {
+  // defensive: do not call backend with invalid id values
+  if (!id || String(id) === "undefined" || String(id) === "null") {
+    return {
+      success: false,
+      message: "Invalid item id"
+    };
+  }
+
   try {
     const result = await getItemById(id);
 

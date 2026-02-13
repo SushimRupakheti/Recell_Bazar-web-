@@ -189,8 +189,8 @@ export default function DashboardHomeView({
       </section>
 
       {/* TRUST BADGES */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className="bg-white mt-8">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
             {[
               {
@@ -210,17 +210,17 @@ export default function DashboardHomeView({
               },
             ].map((b) => (
               <div key={b.title} className="flex flex-col items-center">
-                <div className="relative mb-3 h-14 w-14 rounded-full bg-teal-700/10 ring-4 ring-teal-700/10">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Image
-                      src={b.img}
-                      alt={b.title}
-                      width={26}
-                      height={26}
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
+                <div className="relative mb-3 h-20 w-20 rounded-full bg-teal-700/10 ring-4 ring-teal-700/10">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Image
+                          src={b.img}
+                          alt={b.title}
+                          width={36}
+                          height={36}
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
                 <p className="text-sm font-semibold text-gray-900">{b.title}</p>
                 <p className="mt-1 max-w-xs text-xs text-gray-500">{b.desc}</p>
               </div>
@@ -230,8 +230,8 @@ export default function DashboardHomeView({
       </section>
 
       {/* REFURBISHED WITH CARE */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+      <section className="bg-white mt-8">
+        <div className="mx-auto max-w-7xl px-4 pt-6 pb-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-center">
             {/* left image */}
             <div className="relative h-56 overflow-hidden rounded-2xl bg-gray-100 sm:h-72">
@@ -450,7 +450,7 @@ export default function DashboardHomeView({
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/25 to-black/10" />
               <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white">
-                <p className="text-lg font-semibold">Women&apos;s Collections</p>
+                <p className="text-lg font-semibold">Gundu, Bhaktapur</p>
                 <p className="mt-2 max-w-md text-xs text-white/80">
                   Opening Hrs: 7AM-10PM
                 </p>
