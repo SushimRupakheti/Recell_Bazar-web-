@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -71,6 +72,8 @@ export default function ItemDetailView({ item }: { item: Item }) {
     const empty = Array.from({ length: 5 - count }, () => "☆").join(" ");
     return (full + (empty ? " " + empty : "")).trim();
   }, [rating]);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (!mainCardRef.current) return;
@@ -274,7 +277,10 @@ export default function ItemDetailView({ item }: { item: Item }) {
 
     {/* Buttons */}
     <div className="mt-auto pt-5 flex gap-3">
-      <button className="flex-1 rounded-xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition">
+      <button
+        onClick={() => router.push(`/booking/${item?._id ?? item?.id ?? ""}`)}
+        className="flex-1 rounded-xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition"
+      >
         Book Now
       </button>
 
