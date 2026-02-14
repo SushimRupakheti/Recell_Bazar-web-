@@ -1,3 +1,5 @@
+//admin dashboard filtrers
+
 "use client";
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../users/AdminLayout";
@@ -45,10 +47,10 @@ export default function AdminDashboardPage() {
         const usersArray: User[] = Array.isArray(data) ? data : data?.data || [];
         const meta = data?.meta || {};
 
-        // total from meta if present, otherwise length of returned array
+ 
         const total = typeof meta.total === "number" ? meta.total : usersArray.length;
 
-        // If backend supports roleCounts in meta, use it directly
+
         if (meta.roleCounts && typeof meta.roleCounts === "object") {
           const admins = Number(meta.roleCounts.admin) || 0;
           const usersCnt = Number(meta.roleCounts.user) || 0;
@@ -100,6 +102,9 @@ export default function AdminDashboardPage() {
 
   // `totalUsers`, `adminCount`, `userCount` are set from server meta when available
   // and fall back to computed values from the returned array.
+
+
+
 
 
 
