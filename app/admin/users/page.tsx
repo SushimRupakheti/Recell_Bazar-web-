@@ -11,9 +11,35 @@ type User = {
   role: string;
 };
 
-export default async function UsersPage() {
-  const resp = await fetchAdminUsersServer();
+export default async function UsersPage({ searchParams }: { searchParams?: any }) {
+  // `searchParams` may be a Promise in some Next.js setups (Turbopack).
+  // Await it if necessary before accessing properties.
+  const resolvedSearchParams = typeof searchParams === "object" && searchParams !== null && typeof searchParams.then === "function"
+    ? await searchParams
+    : searchParams || {};
+
+  const pageRaw = Array.isArray(resolvedSearchParams?.page) ? resolvedSearchParams.page[0] : resolvedSearchParams?.page;
+  const limitRaw = Array.isArray(resolvedSearchParams?.limit) ? resolvedSearchParams.limit[0] : resolvedSearchParams?.limit;
+
+  let parsedPage = parseInt(pageRaw ?? "1", 10);
+  if (Number.isNaN(parsedPage) || parsedPage < 1) parsedPage = 1;
+
+  let parsedLimit = parseInt(limitRaw ?? "10", 10);
+  if (Number.isNaN(parsedLimit) || parsedLimit < 1) parsedLimit = 10;
+
+  const page = parsedPage;
+  const limit = parsedLimit;
+
+  const resp = await fetchAdminUsersServer({ page, limit });
   const users: User[] = Array.isArray(resp) ? resp : resp?.data || [];
+  const meta = resp?.meta || { total: users.length, totalPages: 1, currentPage: page, perPage: limit };
+  const currentPage = meta.currentPage ?? page;
+  const perPage = meta.perPage || limit;
+  const totalPages = meta.totalPages ?? Math.max(1, Math.ceil((meta.total || users.length) / perPage));
+  const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+  const prevHref = `/admin/users?page=${Math.max(1, currentPage - 1)}&limit=${perPage}`;
+  const nextHref = `/admin/users?page=${Math.min(totalPages, currentPage + 1)}&limit=${perPage}`;
 
   return (
     <AdminLayout>
@@ -31,6 +57,8 @@ export default async function UsersPage() {
             </svg>
           </Link>
         </div>
+
+        {/* Pagination will be rendered below the users table */}
 
         {/* Users Table */}
         <div className="overflow-x-auto rounded-lg border border-gray-800 bg-gray-900">
@@ -77,6 +105,29 @@ export default async function UsersPage() {
             </table>
           )}
         </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <Link
+                href={prevHref}
+                aria-disabled={!hasPrev}
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-gray-800 text-gray-200 hover:bg-gray-700 ${!hasPrev ? "opacity-50 pointer-events-none" : ""}`}
+              >
+                Prev
+              </Link>
+
+              <div className="text-sm text-gray-400">Page {currentPage} of {totalPages}</div>
+
+              <Link
+                href={nextHref}
+                aria-disabled={!hasNext}
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md bg-gray-800 text-gray-200 hover:bg-gray-700 ${!hasNext ? "opacity-50 pointer-events-none" : ""}`}
+              >
+                Next
+              </Link>
+            </div>
+          )}
       </div>
     </AdminLayout>
   );

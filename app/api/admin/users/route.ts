@@ -4,8 +4,8 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
 
 export async function GET(req: Request) {
   try {
-    // Forward GET to backend users list endpoint
-    const url = `${BASE}/api/admin/users`;
+    // Forward GET to backend users list endpoint, preserving query string
+    const url = `${BASE}/api/admin/users${new URL(req.url).search}`;
 
     const cookie = req.headers.get("cookie") || "";
     const auth = req.headers.get("authorization") || "";
