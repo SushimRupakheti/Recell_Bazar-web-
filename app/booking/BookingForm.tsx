@@ -43,25 +43,10 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
     }
 
     try {
-      // build payment details expected by backend esewa verify endpoint
-      const pid = String(itemId);
-      const amt = Number(amount) || 0;
-      const tAmt = amt; // total amount (no extra charges here)
+      // Build order payload
       const referenceId = `BK-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+      const amt = Number(amount) || 0;
 
-      const paymentDetails = {
-        method: "esewa",
-        pid,
-        amt,
-        tAmt,
-        referenceId,
-        productName: itemState?.phoneModel ?? "",
-        buyerName: name,
-        buyerPhone: number,
-        buyerEmail: email,
-      };
-
-      // Build order payload matching backend expectation
       const orderPayload = {
         oid: referenceId,
         amt: String(amt),
@@ -75,28 +60,43 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
         location: shop,
         date: date,
         time: time,
-        payment: paymentDetails,
       };
 
       // debug log for developer
       // eslint-disable-next-line no-console
       console.log("Submitting order payload:", orderPayload);
 
-      // Redirect user to eSewa auth URL via POST form (opens in new tab)
-      const ESEWA_URL = "https://rc-epay.esewa.com.np/auth";
-      const scd = process.env.NEXT_PUBLIC_ESEWA_SCD || ""; // merchant code
+      // Create Stripe checkout session via external backend
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
+      const response = await fetch(`${apiBase}/api/payments/stripe/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: amt,
+          productName: itemState?.phoneModel ?? "Phone",
+          productId: itemId,
+          buyerName: name,
+          buyerEmail: email,
+          buyerPhone: number,
+          orderId: referenceId,
+          metadata: orderPayload,
+        }),
+      });
 
-      // success/fail return URLs will include the original order payload so
-      // the return page can call backend verify.
-      const su = `${window.location.origin}/esewa/return?order=${encodeURIComponent(JSON.stringify(orderPayload))}`;
-      const fu = `${window.location.origin}/esewa/return?order=${encodeURIComponent(JSON.stringify(orderPayload))}&failed=1`;
+      const data = await response.json();
 
-      // Some eSewa endpoints redirect to homepage when invoked via GET from client.
-      // Use a server-side helper page that renders an auto-submitting POST form
-      // to the eSewa auth endpoint. Open that server page in a new tab.
-      const redirectUrl = `/esewa/redirect?order=${encodeURIComponent(JSON.stringify(orderPayload))}`;
-      window.open(redirectUrl, "_blank", "noopener,noreferrer");
-      setResult({ success: true, message: "Redirecting to eSewa (via server POST proxy)..." });
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+
+      setResult({ success: true, message: "Redirecting to Stripe checkout..." });
     } catch (err: any) {
       setResult({ success: false, message: err?.message || "Payment failed", raw: null });
     } finally {
@@ -126,32 +126,8 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
     fetchItem();
   }, [itemState]);
 
-  // Listen for messages from payment window (eSewa return)
-  useEffect(() => {
-    const handler = (ev: MessageEvent) => {
-      try {
-        // ensure message comes from same origin for safety
-        if (ev.origin !== window.location.origin) return;
-        const payload = ev.data;
-        if (!payload || payload.type !== "esewa:verified") return;
-
-        const data = payload.data;
-        // show verification result in the booking UI
-        setResult(data);
-
-        // if success, navigate to success page
-        if (data?.success) {
-          const id = itemState?._id ?? itemState?.id;
-          if (id) router.push(`/booking/${id}/success`);
-        }
-      } catch (e) {
-        // ignore
-      }
-    };
-
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, [itemState, router]);
+  // Stripe handles redirects directly to success/cancel pages
+  // No message listener needed
 
   return (
     <form onSubmit={handlePlaceOrder} className="mx-auto max-w-3xl">
