@@ -9,10 +9,12 @@ export const API = {
     RESET_PASSWORD: (token: string) => `/api/auth/reset-password/${token}`,
   },
 
-    USERS: {
+
+  USERS: {
     BY_ID: (id: string) => `/api/users/${id}`,
     UPDATE: (id: string) => `/api/users/update/${id}`,
   },
+  
 
   ADMIN: {
 
@@ -24,5 +26,13 @@ export const API = {
       UPDATE: (id: string) => `/api/admin/users/${id}`, // PUT/PATCH
       DELETE: (id: string) => `/api/admin/users/${id}`, // DELETE
     },
+  },
+  ITEMS: {
+    CREATE: "/api/items",
+    ALL: "/api/items",
+    BY_ID: (id: string) => `/api/items/${id}`,
+    BY_SELLER: (sellerId: string) => `/api/items/user/${sellerId}`,
+    UPDATE: (id: string) => `/api/items/${id}`,
+    DELETE: (id: string) => `/api/items/${id}`,
   },
 } as const;

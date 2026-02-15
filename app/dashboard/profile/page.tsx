@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { fetchMyProfile, updateMyProfile } from "@/lib/actions/user-action";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// NOTE: use a client-side wrapper to call the server logout API
 
 type FormState = {
   firstName: string;
@@ -19,6 +21,7 @@ type FormState = {
 };
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -148,12 +151,34 @@ export default function ProfilePage() {
             <span className="text-gray-700 font-medium">My Account</span>
           </div>
 
-          <div>
-            <span className="text-gray-600">Welcome! </span>
-            <span className="text-teal-700 font-medium">
-              {form.firstName || "User"} {form.lastName}
-            </span>
+          <div className="flex items-center gap-4">
+            <div>
+              <span className="text-gray-600">Welcome! </span>
+              <span className="text-teal-700 font-medium">
+                {form.firstName || "User"} {form.lastName}
+              </span>
+            </div>
+
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/auth/logout', { method: 'POST' });
+                  if (res.ok) {
+                    router.replace('/login');
+                  } else {
+                    toast.error('Logout failed');
+                  }
+                } catch (err: any) {
+                  toast.error(err?.message || 'Logout failed');
+                }
+              }}
+              className="border border-teal-700 text-teal-700 hover:bg-teal-700 hover:text-white text-xs font-medium px-4 py-2 rounded-sm transition"
+            >
+              Logout
+            </button>
           </div>
+
+
         </div>
       </div>
 
