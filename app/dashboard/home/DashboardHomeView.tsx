@@ -194,17 +194,17 @@ export default function DashboardHomeView({
           <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3">
             {[
               {
-                img: "/icon1.png", // dummy
+                img: "/icons/icon1.png", // dummy
                 title: "TRUSTED BY MANY",
                 desc: "Trusted by numbers of people across the country",
               },
               {
-                img: "/icon2.png", // dummy
+                img: "/icons/icon2.png", // dummy
                 title: "24/7 CUSTOMER SERVICE",
                 desc: "Friendly 24/7 customer support",
               },
               {
-                img: "/icon3.png", // dummy
+                img: "/icons/icon3.png", // dummy
                 title: "MONEY BACK GUARANTEE",
                 desc: "Cashback within 10 days of return",
               },
@@ -252,22 +252,22 @@ export default function DashboardHomeView({
                   {
                     title: "Refurbished",
                     desc: "Full equipment on all items",
-                    icon: "/icon4.png", // dummy
+                    icon: "/icons/icon4.png", // dummy
                   },
                   {
                     title: "Warranty",
                     desc: "Warranty up to 2 years",
-                    icon: "/icon5.png", // dummy
+                    icon: "/icons/icon5.png", // dummy
                   },
                   {
                     title: "Eco-friendly",
                     desc: "We use eco friendly packaging",
-                    icon: "/icon6.png", // dummy
+                    icon: "/icons/icon6.png", // dummy
                   },
                   {
                     title: "Cross check",
                     desc: "Fully cross checked and examined",
-                    icon: "/icon7.png", // dummy
+                    icon: "/icons/icon7.png", // dummy
                   },
                 ].map((f) => (
                   <div key={f.title} className="flex items-start gap-3">

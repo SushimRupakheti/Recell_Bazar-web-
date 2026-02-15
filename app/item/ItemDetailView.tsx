@@ -201,7 +201,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
       <div className="flex items-center gap-3 rounded-2xl p-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
           <Image
-            src="/icon8.png"
+            src="/icons/icon8.png"
             alt="screen"
             width={30}
             height={30}
@@ -220,7 +220,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
       <div className="flex items-center gap-3 rounded-2xl p-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
           <Image
-            src="/icon9.png"
+            src="/icons/icon9.png"
             alt="battery"
             width={30}
             height={30}
@@ -239,7 +239,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
       <div className="flex items-center gap-3 rounded-2xl p-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100">
           <Image
-            src="/icon10.png"
+            src="/icons/icon10.png"
             alt="camera"
             width={30}
             height={30}
@@ -258,7 +258,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
       <div className="flex items-center gap-3 rounded-2xl bg-gray-50 p-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100">
           <Image
-            src="/icon11.png"
+            src="/icons/icon11.png"
             alt="charger"
             width={30}
             height={30}

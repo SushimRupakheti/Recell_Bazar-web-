@@ -10,7 +10,7 @@ export default function Page() {
         <h1 className="text-xl font-semibold">Sell</h1>
 
         <Link
-          href="/sell/add"
+          href="/dashboard/sell/add"
           className="bg-teal-600 text-white px-5 py-2 rounded-lg hover:bg-teal-700 transition"
         >
           Add +
