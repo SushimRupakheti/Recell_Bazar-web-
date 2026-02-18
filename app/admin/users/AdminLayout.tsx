@@ -29,6 +29,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           >
             Users
           </Link>
+
+          <Link
+            href="/admin/items"
+            className="px-4 py-3 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition"
+          >
+            Items
+          </Link>
         </nav>
 
         {/* Optional footer area */}

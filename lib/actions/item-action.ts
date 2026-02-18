@@ -102,20 +102,34 @@ export const handleCreateItem = async (formData: ItemPayload) => {
    Get All Items
 ========================= */
 
-export const handleGetAllItems = async () => {
+export const handleGetAllItems = async (opts?: { page?: number; limit?: number }) => {
   try {
-    const result = await getAllItems();
+    const page = opts?.page ?? 1;
+    const limit = opts?.limit ?? 10;
+    const token = await getAuthToken();
+    const url = `${BACKEND}/api/items?page=${page}&limit=${limit}`;
 
-    return {
-      success: true,
-      data: result.data || result
-    };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
+    const resp = await fetch(url, { method: "GET", headers });
+    const text = await resp.text();
+    const ct = resp.headers.get("content-type") || "application/json";
+    let parsed: any = null;
+    if (ct.includes("application/json")) {
+      parsed = JSON.parse(text);
+    } else {
+      // unexpected non-json
+      parsed = { success: resp.ok, data: text };
+    }
+
+    if (resp.ok) {
+      return { success: true, data: parsed.data ?? parsed, meta: parsed.meta };
+    }
+
+    return { success: false, message: parsed?.message || "Fetch items failed", data: parsed };
   } catch (err: any) {
-    return {
-      success: false,
-      message: err.message || "Fetch items failed"
-    };
+    return { success: false, message: err.message || "Fetch items failed" };
   }
 };
 
