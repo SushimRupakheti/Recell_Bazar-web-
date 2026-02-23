@@ -8,7 +8,6 @@ import { Heart, ShoppingCart, User, Search } from "lucide-react";
 const LINKS = [
   { href: "/dashboard", label: "Home" },
   { href: "/dashboard/sell", label: "Sell" },
-  { href: "/dashboard/cart", label: "Cart" },
   { href: "/dashboard/about", label: "About" },
 ];
 

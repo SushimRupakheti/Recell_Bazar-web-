@@ -161,17 +161,38 @@ export default function ProfilePage() {
 
             <button
               onClick={async () => {
-                try {
-                  const res = await fetch('/api/auth/logout', { method: 'POST' });
-                  if (res.ok) {
-                    router.replace('/login');
-                  } else {
-                    toast.error('Logout failed');
+                  try {
+                    const base = (process.env.NEXT_PUBLIC_API_BASE_URL || '').replace(/\/$/, '');
+                    const url = base ? `${base}/api/auth/logout` : '/api/auth/logout';
+                    const res = await fetch(url, { method: 'POST', credentials: 'include' });
+                    if (res.ok) {
+                      // clear client-side storage/cookies as a fallback
+                      try {
+                        // remove localStorage keys
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('user_data');
+                        localStorage.removeItem('token');
+                      } catch (e) {}
+
+                      try {
+                        // expire common cookies (non-httpOnly will be removed)
+                        const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
+                        document.cookie = `auth_token=; Expires=${expire}; Path=/`;
+                        document.cookie = `user_data=; Expires=${expire}; Path=/`;
+                        document.cookie = `token=; Expires=${expire}; Path=/`;
+                      } catch (e) {}
+
+                      // ensure navigation to login
+                      router.replace('/login');
+                      // also reload to clear any in-memory state
+                      try { window.location.replace('/login'); } catch (e) {}
+                    } else {
+                      toast.error('Logout failed');
+                    }
+                  } catch (err: any) {
+                    toast.error(err?.message || 'Logout failed');
                   }
-                } catch (err: any) {
-                  toast.error(err?.message || 'Logout failed');
-                }
-              }}
+                }}
               className="border border-teal-700 text-teal-700 hover:bg-teal-700 hover:text-white text-xs font-medium px-4 py-2 rounded-sm transition"
             >
               Logout

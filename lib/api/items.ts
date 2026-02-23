@@ -5,9 +5,8 @@ import axios from "./axios";
 import { API } from "./endpoints";
 import cookie from 'cookie';
 
-/* =========================
-   Types
-========================= */
+   //Types
+
 
 export type ItemPayload = {
   photos?: string[];
@@ -34,10 +33,8 @@ export type ItemPayload = {
   basePrice?: number;
 };
 
-/* =========================
-   Brand / Model helpers
-   Exported so frontend can reuse lists for dropdowns
-========================= */
+   //Brand / Model helpers
+   //
 
 export const phoneModels: Record<string, string[]> = {
   iPhone: ["iPhone 14", "iPhone 14 Pro", "iPhone 13"],
@@ -88,9 +85,7 @@ export const getBasePrice = (brand?: string, model?: string) => {
   return mp[model];
 };
 
-/* =========================
-   Create Item
-========================= */
+  // Create Item
 
 export const createItem = async (itemData: ItemPayload) => {
   try {
@@ -189,7 +184,6 @@ export const proxyCreateItem = async (body: any, cookieHeader?: string) => {
           headers['Authorization'] = `Bearer ${authToken}`;
         }
       } catch (e) {
-        // ignore cookie parse errors
       }
     }
 
@@ -211,10 +205,9 @@ export const proxyCreateItem = async (body: any, cookieHeader?: string) => {
   }
 };
 
-/* =========================
-   Price Calculation Helper
-   Mirrors the Flutter `PhonePriceData._calculateFinalPrice()` logic
-========================= */
+
+   //Price Calculation Helper
+  
 
 export const computeFinalPrice = (basePrice: number, p: Partial<ItemPayload & { batteryHealth?: number; year?: number }>) => {
   let price = basePrice || 0;
@@ -261,10 +254,9 @@ export const computeFinalPrice = (basePrice: number, p: Partial<ItemPayload & { 
   return price;
 };
 
-/* =========================
-   Upload Photos (client helper)
-   Sends multipart/form-data to pages API route that uses multer
-========================= */
+
+   //Upload Photos (client helper)
+
 
 export type UploadResult = { success: boolean; urls: string[]; message?: string; sellerId?: string };
 
@@ -307,9 +299,9 @@ export const uploadPhotos = async (files: (File | Blob)[]): Promise<UploadResult
     return { success: false, urls: [], message: err?.message || "Upload failed" };
   }
 };
-/* =========================
-   Get All Items
-========================= */
+
+   //Get All Items
+
 
 export const getAllItems = async () => {
   try {
@@ -324,9 +316,8 @@ export const getAllItems = async () => {
   }
 };
 
-/* =========================
-   Get Item By ID
-========================= */
+//   Get Item By ID
+
 
 export const getItemById = async (id: string) => {
   try {
@@ -341,9 +332,9 @@ export const getItemById = async (id: string) => {
   }
 };
 
-/* =========================
-   Get Items By Seller
-========================= */
+
+   //Get Items By Seller
+
 
 export const getItemsBySeller = async (sellerId: string) => {
   try {
@@ -358,9 +349,8 @@ export const getItemsBySeller = async (sellerId: string) => {
   }
 };
 
-/* =========================
-   Update Item
-========================= */
+
+   //Update Item
 
 export const updateItem = async (
   id: string,
@@ -381,9 +371,7 @@ export const updateItem = async (
   }
 };
 
-/* =========================
-   Delete Item
-========================= */
+//  Delete Item
 
 export const deleteItem = async (id: string) => {
   try {

@@ -11,7 +11,8 @@ export default function ItemActions({ id }: { id: string }) {
     if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
     try {
       setDeleting(true);
-      const res = await fetch(`/api/items/${id}`, { method: "DELETE", credentials: "include" });
+      // call admin proxy which forwards to backend admin delete endpoint
+      const res = await fetch(`/api/admin/items/${id}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) {
         let msg = "Failed to delete item";
         try {

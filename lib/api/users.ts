@@ -45,6 +45,18 @@ export const logoutUserApi = async () => {
   }
 };
 
+// Admin logout (calls backend admin logout endpoint)
+export const logoutAdminApi = async () => {
+  try {
+    const res = await axios.post("/api/admin/users/logout");
+    return res.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Admin logout failed"
+    );
+  }
+};
+
 // Admin-specific helpers
 export const getAdminUsers = async () => {
   try {

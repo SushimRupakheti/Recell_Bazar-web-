@@ -232,7 +232,7 @@ export default function AdminDashboardPage() {
                 Manage Users
               </Link>
               <Link
-                href="/items"
+                href="/admin/items"
                 className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
               >
                 View Items
@@ -254,9 +254,6 @@ export default function AdminDashboardPage() {
             <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
               <p className="text-sm font-medium text-rose-800">Something went wrong</p>
               <p className="mt-1 text-sm text-rose-700">{error || itemsError}</p>
-              <p className="mt-2 text-xs text-rose-700/80">
-                Tip: confirm you’re logged in as admin and your API routes return JSON correctly.
-              </p>
             </div>
           )}
 
@@ -412,6 +409,56 @@ export default function AdminDashboardPage() {
                   </div>
                 )}
               </div>
+
+              {/* Category breakdown chart */}
+              <div className="mt-6">
+                <h3 className="text-sm font-semibold text-slate-900">Items by Category</h3>
+                <p className="mt-1 text-xs text-slate-500">Top categories from recent items</p>
+
+                <div className="mt-3">
+                  {itemsLoading ? (
+                    <div className="h-24 animate-pulse rounded-lg bg-slate-100" />
+                  ) : itemsError ? (
+                    <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+                      {itemsError}
+                    </div>
+                  ) : (() => {
+                    // compute top categories
+                    const counts: Record<string, number> = {};
+                    for (const it of itemsRaw) {
+                      const cat = (it?.category || it?.brand || it?.type || "Uncategorized") as string;
+                      const key = String(cat || "Uncategorized");
+                      counts[key] = (counts[key] || 0) + 1;
+                    }
+
+                    const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+                    const total = entries.reduce((s, e) => s + e[1], 0) || 1;
+
+                    if (!entries.length) return (
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">No categories.</div>
+                    );
+
+                    return (
+                      <div className="space-y-2">
+                        {entries.map(([k, v], idx) => {
+                          const pct = Math.round((v / total) * 100);
+                          return (
+                            <div key={k} className="flex items-center gap-3">
+                              <div className="w-36 text-xs text-slate-700 truncate">{k}</div>
+                              <div className="flex-1">
+                                <div className="h-3 rounded-full bg-slate-100">
+                                  <div className={`h-3 rounded-full bg-teal-600`} style={{ width: `${pct}%` }} />
+                                </div>
+                              </div>
+                              <div className="w-12 text-right text-xs text-slate-600">{v}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
 
             {/* Recent Items */}
@@ -454,7 +501,7 @@ export default function AdminDashboardPage() {
                           {/* optional per-item link if you have item detail route */}
                           {it?._id ? (
                             <Link
-                              href={`/items/${it._id}`}
+                              href={`/item/${it._id}`}
                               className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
                             >
                               Open
@@ -472,16 +519,9 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Small helpful footer */}
-              <div className="mt-5 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-                Tip: If your graph is always flat, ensure items include <span className="font-medium">createdAt</span>.
-              </div>
             </div>
           </div>
 
-          {/* Bottom note */}
-          <div className="mt-6 text-xs text-slate-500">
-            Dashboard data updates when this page loads. Add refresh or polling later if you want live updates.
-          </div>
         </div>
       </div>
     </AdminLayout>
