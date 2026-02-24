@@ -74,6 +74,10 @@ export default function DashboardHomeView({ items: initialItems = [], anyRes }: 
 
   const items = initialItems || [];
 
+  const approvedItems = useMemo(() => {
+    return (items || []).filter((it: any) => String(it?.status || "").toLowerCase() === "approved");
+  }, [items]);
+
   const getCategory = (it: any) => {
     const candidates = [
       it?.brand,
@@ -92,18 +96,18 @@ export default function DashboardHomeView({ items: initialItems = [], anyRes }: 
   };
 
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(items.map(getCategory).filter(Boolean))) as string[];
+    const unique = Array.from(new Set(approvedItems.map(getCategory).filter(Boolean))) as string[];
     return unique.sort((a, b) => a.localeCompare(b));
-  }, [items]);
+  }, [approvedItems]);
 
   const filteredItems = useMemo(() => {
-    if (!selectedCategory) return items;
-    return items.filter((it: any) => getCategory(it) === selectedCategory);
-  }, [items, selectedCategory]);
+    if (!selectedCategory) return approvedItems;
+    return approvedItems.filter((it: any) => getCategory(it) === selectedCategory);
+  }, [approvedItems, selectedCategory]);
 
   // DB ordering:
-  const trendingItems = items.slice(0, 8);
-  const newItems = items.slice(0, 4);
+  const trendingItems = approvedItems.slice(0, 8);
+  const newItems = approvedItems.slice(0, 4);
 
   const Container = ({ children }: { children: React.ReactNode }) => (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>
@@ -139,15 +143,15 @@ export default function DashboardHomeView({ items: initialItems = [], anyRes }: 
   /* =========================
      PRODUCTS-ONLY VIEW (See All)
   ========================= */
-  if (showOnlyProducts) {
+    if (showOnlyProducts) {
     // Minimal items-only view: show only the items grid with no headers or controls
     return (
       <main className="min-h-screen bg-gray-50">
         <Container>
           <div className="py-6">
-            {items && items.length ? (
+            {approvedItems && approvedItems.length ? (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
-                {items.map((item: any) => (
+                {approvedItems.map((item: any) => (
                   <div
                     key={item._id ?? item.id ?? item.phoneModel}
                     className="motion-safe:animate-fade-up"

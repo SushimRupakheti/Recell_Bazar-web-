@@ -22,6 +22,9 @@ export default async function Page() {
     items = [];
   }
 
+  // show only approved items
+  items = (items || []).filter((it: any) => String(it?.status || "").toLowerCase() === "approved");
+
   return (
     <main className="w-full bg-gray-50 min-h-screen">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

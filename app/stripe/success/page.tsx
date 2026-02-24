@@ -16,10 +16,26 @@ export default function StripeSuccessPage() {
       return;
     }
 
-    // Optionally verify the session with your backend
-    // For now, just show success
-    setStatus("success");
-    setSession({ id: sessionId });
+    // verify the session with our server route which checks Stripe and forwards to backend
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:5050/api/payments/stripe/checkout', {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+        const data = await res.json();
+        if (res.ok && data?.paid) {
+          setStatus("success");
+          setSession({ id: sessionId, verified: true, forwarded: data.forwarded });
+        } else {
+          setStatus("error");
+          setSession({ id: sessionId, verified: false, reason: data?.message || "not paid" });
+        }
+      } catch (err) {
+        setStatus("error");
+      }
+    })();
   }, [sessionId]);
 
   if (status === "loading") {

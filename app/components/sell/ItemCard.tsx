@@ -77,8 +77,22 @@ export default function ItemCard({ item, onDelete }: ItemCardProps) {
           unoptimized={isLocalImage}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
-
-        {/* simplified: no discount badge */}
+        {/* status badge */}
+        {(() => {
+          const s = (item.status || "").toString().toLowerCase();
+          const map: Record<string, string> = {
+            approved: "bg-emerald-600 text-white",
+            rejected: "bg-red-600 text-white",
+            pending: "bg-yellow-400 text-black",
+            sold: "bg-red-800 text-white",
+            available: "bg-gray-700 text-gray-100",
+          };
+          const cls = map[s] ?? "bg-gray-700 text-gray-100";
+          if (!s) return null;
+          return (
+            <div className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-semibold ${cls} shadow-sm`}>{String(s).toUpperCase()}</div>
+          );
+        })()}
       </div>
 
       {/* Content */}
