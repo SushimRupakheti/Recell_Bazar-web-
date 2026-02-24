@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 
 type ItemCardProps = {
   item: any;
+  onDelete?: (id: string) => Promise<void> | void;
 };
 
 function calcRating(basePrice: any, finalPrice: any) {
@@ -27,7 +28,7 @@ function formatNPR(value: any) {
   return new Intl.NumberFormat("en-NP", { maximumFractionDigits: 0 }).format(n);
 }
 
-export default function ItemCard({ item }: ItemCardProps) {
+export default function ItemCard({ item, onDelete }: ItemCardProps) {
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
   const rawPhoto = item.photos?.[0];
@@ -107,11 +108,71 @@ export default function ItemCard({ item }: ItemCardProps) {
   );
 
   if (!id) return card;
-
   const href = `/item/${id}`;
+
+  // Menu and delete handling
+  const handleDeleteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!id) return;
+    const ok = confirm("Are you sure you want to delete this item?");
+    if (!ok) return;
+    try {
+      if (onDelete) {
+        await onDelete(id);
+      } else {
+        // fallback: call internal API route
+        const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("Delete failed");
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      alert("Failed to delete item");
+    }
+  };
+
+  // Render wrapper with menu button
   return (
-    <Link href={href} className="block">
-      {card}
-    </Link>
+    <div className="relative">
+      <div className="absolute right-2 top-2 z-10">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              const menu = document.getElementById(`menu-${id}`);
+              if (menu) menu.classList.toggle("hidden");
+            }}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-white/90 ring-1 ring-gray-200 shadow-sm hover:bg-gray-50"
+            aria-label="More"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </button>
+
+          {id ? (
+            <div id={`menu-${id}`} className="hidden absolute right-0 mt-2 w-40 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="py-1">
+              <a href={`/dashboard/sell/edit/${id}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit</a>
+              <button
+                type="button"
+                onClick={handleDeleteClick}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          ) : null}
+        </div>
+      </div>
+
+      <Link href={href} className="block">
+        {card}
+      </Link>
+    </div>
   );
 }

@@ -4,7 +4,12 @@ const BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
 
 export async function GET(req: Request, { params }: { params: any }) {
   try {
-    const id = params.id;
+    // params can be a Promise in some Next.js dev/runtime setups — await it
+    const p = await params;
+    const id = p?.id;
+    if (!id || id === "undefined") {
+      return NextResponse.json({ success: false, message: "Missing or invalid id" }, { status: 400 });
+    }
     const url = `${BASE}/api/items/${id}`;
 
     const cookie = req.headers.get("cookie") || "";
@@ -44,7 +49,11 @@ export async function GET(req: Request, { params }: { params: any }) {
 
 export async function DELETE(req: Request, { params }: { params: any }) {
   try {
-    const id = params.id;
+    const p = await params;
+    const id = p?.id;
+    if (!id || id === "undefined") {
+      return NextResponse.json({ success: false, message: "Missing or invalid id" }, { status: 400 });
+    }
     const url = `${BASE}/api/items/${id}`;
 
     const cookie = req.headers.get("cookie") || "";

@@ -2,6 +2,7 @@ import AdminLayout from "../users/AdminLayout";
 import Link from "next/link";
 import { handleGetAllItems } from "@/lib/actions/item-action";
 import ItemActions from "./_components/ItemActions";
+import StatusSelect from "./_components/StatusSelect";
 
 export default async function ItemsPage({ searchParams }: { searchParams?: any }) {
   const resolvedSearchParams = typeof searchParams === "object" && searchParams !== null && typeof searchParams.then === "function"
@@ -150,12 +151,11 @@ export default async function ItemsPage({ searchParams }: { searchParams?: any }
                     <td className="px-6 py-6 text-gray-100">{it.finalPrice ? `Rs ${it.finalPrice}` : it.price ? `Rs ${it.price}` : "—"}</td>
 
                     <td className="px-6 py-6">
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${it.status === 'sold' ? 'bg-red-900/30 text-red-300' : 'bg-green-900/30 text-green-300'}`}>
-                        {String(it.status || 'available').toUpperCase()}
-                      </span>
+                      {/* status editable select */}
+                      <StatusSelect id={it._id} status={it.status} />
                     </td>
 
-                    <td className="px-6 py-6">
+                    <td className="px-6 py-6 text-right">
                       <ItemActions id={it._id} />
                     </td>
                   </tr>
