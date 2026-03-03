@@ -26,6 +26,35 @@ export default async function Page({ params }: Props) {
   // fetch current user server-side from cookies (if set by login flow)
   const user = await getUserData();
 
+  // Guard: if item is already sold on the server, show a message instead of the booking form
+  const isSold = item?.isSold === true || String(item?.status || "").toLowerCase() === "sold";
+
+  if (isSold) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <div className="mx-auto max-w-sm rounded-xl bg-red-50 border border-red-200 p-8">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Item Already Sold</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {item?.phoneModel ?? "This item"} has already been sold and is no longer available for purchase.
+          </p>
+          {item?.soldAt && (
+            <p className="mt-1 text-xs text-gray-500">
+              Sold on {new Date(item.soldAt).toLocaleDateString()}
+            </p>
+          )}
+          <a href="/dashboard" className="mt-6 inline-block rounded-md bg-teal-700 px-6 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition">
+            Browse Other Items
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <nav className="mb-4 text-sm text-gray-500">Home / Category / <span className="text-gray-900">{item?.phoneModel ?? 'Product'}</span> / Booking Confirmation</nav>

@@ -6,6 +6,14 @@ import { useRouter } from "next/navigation";
 type Item = any;
 type User = any;
 
+/** Helper: check if an item is sold based on backend fields */
+function isItemSold(it: any): boolean {
+  if (!it) return false;
+  if (it.isSold === true) return true;
+  if (String(it.status || "").toLowerCase() === "sold") return true;
+  return false;
+}
+
 export default function BookingForm({ item, user }: { item?: Item; user?: User }) {
   const router = useRouter();
   const [name, setName] = useState(() => {
@@ -22,9 +30,41 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
   const [time, setTime] = useState("4:00 PM");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [soldModal, setSoldModal] = useState(false);
+
+  // Re-fetch item on mount to verify it hasn't been sold (race condition guard)
+  useEffect(() => {
+    const checkItemStatus = async () => {
+      const id = itemState?._id ?? itemState?.id;
+      if (!id) return;
+      try {
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
+        const res = await fetch(`${base}/api/items/${id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const fetched = data?.item ?? data?.data?.item ?? data?.data ?? data;
+        if (fetched && (fetched._id || fetched.id)) {
+          setItemState(fetched);
+          if (isItemSold(fetched)) {
+            setSoldModal(true);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+    checkItemStatus();
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check sold status before allowing order
+    if (isItemSold(itemState)) {
+      setSoldModal(true);
+      return;
+    }
+
     setBusy(true);
     // client-side validation: required fields
     const missing: string[] = [];
@@ -191,7 +231,37 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
   // No message listener needed
 
   return (
-    <form onSubmit={handlePlaceOrder} className="mx-auto max-w-3xl">
+    <>
+      {/* Sold Modal — race condition warning */}
+      {soldModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 max-w-sm rounded-xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+              <svg className="h-7 w-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Item Sold</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              This item was sold while you were checking out. We apologize for the inconvenience.
+            </p>
+            {itemState?.soldAt && (
+              <p className="mt-1 text-xs text-gray-500">
+                Sold on {new Date(itemState.soldAt).toLocaleDateString()}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => { setSoldModal(false); router.push("/dashboard"); }}
+              className="mt-4 w-full rounded-md bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 transition"
+            >
+              Browse Other Items
+            </button>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handlePlaceOrder} className="mx-auto max-w-3xl">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
           <label className="block text-xs text-gray-600">Full Name</label>
@@ -240,5 +310,6 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
         </div>
       </div>
     </form>
+    </>
   );
 }

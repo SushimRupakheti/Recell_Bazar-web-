@@ -35,4 +35,9 @@ export const API = {
     UPDATE: (id: string) => `/api/items/${id}`,
     DELETE: (id: string) => `/api/items/${id}`,
   },
+  CART: {
+    GET: "/api/cart",
+    ADD: "/api/cart/add",
+    REMOVE: (cartItemId: string) => `/api/cart/remove/${cartItemId}`,
+  },
 } as const;

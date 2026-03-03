@@ -6,11 +6,15 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { createPaymentIntent as createPaymentIntentClient } from '@/lib/stripe-client';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5050';
+
 function CheckoutInner({ clientSecret }: { clientSecret: string }) {
   const stripe = useStripe();
   const elements = useElements();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +25,32 @@ function CheckoutInner({ clientSecret }: { clientSecret: string }) {
       if (res.error) {
         setMessage(res.error.message || 'Payment failed');
       } else {
-        setMessage('Payment submitted — awaiting confirmation.');
+        setMessage('Payment submitted — verifying item status...');
+
+        // After client-side payment success, re-fetch item to confirm backend marked it sold
+        const itemId = searchParams.get('itemId') || searchParams.get('productId');
+        if (itemId) {
+          // Poll after 2s to give webhook time to process
+          setTimeout(async () => {
+            try {
+              const itemRes = await fetch(`${API_BASE}/api/items/${itemId}`);
+              if (itemRes.ok) {
+                const data = await itemRes.json();
+                const item = data?.item ?? data?.data?.item ?? data?.data ?? data;
+                const isSold = item?.isSold === true || String(item?.status || '').toLowerCase() === 'sold';
+                if (isSold) {
+                  setMessage('Payment confirmed! Item is now marked as sold.');
+                } else {
+                  setMessage('Payment received. Item status update is still processing.');
+                }
+              }
+            } catch {
+              // non-critical
+            }
+          }, 2000);
+        } else {
+          setMessage('Payment submitted — awaiting confirmation.');
+        }
       }
     } catch (err: any) {
       setMessage(err?.message || 'Unexpected error');

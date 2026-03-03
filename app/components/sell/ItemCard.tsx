@@ -30,6 +30,7 @@ function formatNPR(value: any) {
 
 export default function ItemCard({ item, onDelete }: ItemCardProps) {
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const sold = item.isSold === true || String(item.status || "").toLowerCase() === "sold";
 
   const rawPhoto = item.photos?.[0];
   const imageUrl = rawPhoto
@@ -66,14 +67,14 @@ export default function ItemCard({ item, onDelete }: ItemCardProps) {
   const id = rawId && String(rawId) !== "undefined" && String(rawId) !== "null" ? String(rawId) : null;
 
   const card = (
-    <div className="group rounded-xl border border-gray-200 bg-white p-2.5 shadow-[0_1px_0_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
+    <div className={`group rounded-xl border bg-white p-2.5 shadow-[0_1px_0_rgba(0,0,0,0.03)] transition ${sold ? "border-gray-300 opacity-75" : "border-gray-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"}`}>
       {/* Image */}
       <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
         <Image
           src={imageUrl}
           alt={item.phoneModel || "Item"}
           fill
-          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+          className={`object-cover transition duration-300 ${sold ? "grayscale opacity-60" : "group-hover:scale-[1.03]"}`}
           unoptimized={isLocalImage}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />

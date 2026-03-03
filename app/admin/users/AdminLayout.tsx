@@ -74,6 +74,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   await logoutAdminApi();
 
                   // client-side fallback cleanup
+                  cookieStore.delete;
                   try { localStorage.removeItem("auth_token"); localStorage.removeItem("user_data"); localStorage.removeItem("token"); localStorage.removeItem("role"); } catch(e) {}
                   try { const expire = new Date(0).toUTCString(); document.cookie = `auth_token=; Expires=${expire}; Path=/`; document.cookie = `user_data=; Expires=${expire}; Path=/`; document.cookie = `token=; Expires=${expire}; Path=/`; document.cookie = `role=; Expires=${expire}; Path=/`; } catch(e) {}
 

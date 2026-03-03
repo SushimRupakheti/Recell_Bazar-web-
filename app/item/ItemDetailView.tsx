@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { addToCartAction } from "@/lib/actions/cart-action";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
 
 function normalizePhoto(src: any) {
   if (!src) return "/placeholder-item.png";
@@ -18,12 +20,45 @@ function normalizePhoto(src: any) {
 
 type Item = any;
 
+/** Helper: determine if an item is sold based on backend fields */
+function isItemSold(it: any): boolean {
+  if (!it) return false;
+  if (it.isSold === true) return true;
+  if (String(it.status || "").toLowerCase() === "sold") return true;
+  return false;
+}
+
 export default function ItemDetailView({ item }: { item: Item }) {
+  // ---- Sold state: always use backend as source of truth ----
+  const [liveItem, setLiveItem] = useState<Item>(item);
+  const sold = isItemSold(liveItem);
+
+  /** Re-fetch item from backend to confirm sold status */
+  const refetchItem = useCallback(async () => {
+    const id = item?._id ?? item?.id;
+    if (!id) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/items/${id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const fetched = data?.item ?? data?.data?.item ?? data?.data ?? data;
+      if (fetched && (fetched._id || fetched.id)) {
+        setLiveItem(fetched);
+      }
+    } catch {
+      // ignore network errors on refetch
+    }
+  }, [item]);
+
+  // Refetch on mount to pick up any sold-state changes
+  useEffect(() => {
+    refetchItem();
+  }, [refetchItem]);
   const photos = useMemo(() => {
     const raw: string[] =
-      item?.photos && item.photos.length ? item.photos : ["/placeholder-item.png"];
+      liveItem?.photos && liveItem.photos.length ? liveItem.photos : ["/placeholder-item.png"];
     return raw.map((p) => normalizePhoto(p));
-  }, [item]);
+  }, [liveItem]);
 
   const [selected, setSelected] = useState(0);
 
@@ -50,21 +85,21 @@ export default function ItemDetailView({ item }: { item: Item }) {
 
   const statuses = useMemo(() => {
     return {
-      display: item?.displayOriginal ? "Perfect" : "Replaced",
-      camera: item?.cameraCondition ? "Excellent" : "Refurbished",
-      charger: item?.chargerAvailable ? "Original" : "Not Included",
-      unlock: item?.factoryUnlock ? "Factory Unlocked" : "Locked",
+      display: liveItem?.displayOriginal ? "Perfect" : "Replaced",
+      camera: liveItem?.cameraCondition ? "Excellent" : "Refurbished",
+      charger: liveItem?.chargerAvailable ? "Original" : "Not Included",
+      unlock: liveItem?.factoryUnlock ? "Factory Unlocked" : "Locked",
     };
-  }, [item]);
+  }, [liveItem]);
 
   const rating = useMemo(() => {
-    const f = Number(item?.finalPrice) || 0;
-    const b = Number(item?.basePrice) || 0;
+    const f = Number(liveItem?.finalPrice) || 0;
+    const b = Number(liveItem?.basePrice) || 0;
     if (!b) return 0;
     const r = (f / b) * 5;
     const rounded = Math.round(r * 10) / 10; // one decimal
     return Math.max(0, Math.min(5, rounded));
-  }, [item]);
+  }, [liveItem]);
 
   const ratingStars = useMemo(() => {
     const count = Math.round(rating);
@@ -74,6 +109,29 @@ export default function ItemDetailView({ item }: { item: Item }) {
   }, [rating]);
 
   const router = useRouter();
+
+  // ---- Cart state ----
+  const [cartStatus, setCartStatus] = useState<"idle" | "adding" | "added" | "already">("idle");
+  const [cartError, setCartError] = useState<string | null>(null);
+  const [isCartPending, startCartTransition] = useTransition();
+
+  const handleAddToCart = () => {
+    const id = liveItem?._id ?? liveItem?.id;
+    if (!id) return;
+    setCartError(null);
+    setCartStatus("adding");
+    startCartTransition(async () => {
+      const res = await addToCartAction(id);
+      if (res.success) {
+        setCartStatus("added");
+      } else if ((res as any).alreadyInCart) {
+        setCartStatus("already");
+      } else {
+        setCartError(res.message || "Failed to add to cart");
+        setCartStatus("idle");
+      }
+    });
+  };
 
   useEffect(() => {
     if (!mainCardRef.current) return;
@@ -154,13 +212,21 @@ export default function ItemDetailView({ item }: { item: Item }) {
                   <div className="relative w-4/5 md:w-3/4 max-w-[28rem] aspect-square">
                     <Image
                       src={photos[safeSelected]}
-                      alt={item?.phoneModel || "Item"}
+                      alt={liveItem?.phoneModel || "Item"}
                       fill
-                      className="object-cover rounded-2xl"
+                      className={`object-cover rounded-2xl${sold ? " opacity-50 grayscale" : ""}`}
                       unoptimized={isLocalUrl(photos[safeSelected])}
                       priority
                     />
                   </div>
+                  {/* Sold overlay on main image */}
+                  {sold && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="rounded-xl bg-red-700/90 px-6 py-3 text-2xl font-extrabold uppercase tracking-wider text-white shadow-lg">
+                        Sold
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -171,14 +237,29 @@ export default function ItemDetailView({ item }: { item: Item }) {
 <aside className="lg:h-[var(--mainCardH)]">
   <div className="flex h-120 flex-col rounded-3xl border border-gray-200 bg-white p-5 shadow-sm overflow-hidden">
 
+    {/* Sold banner at top of details panel */}
+    {sold && (
+      <div className="mb-3 rounded-xl bg-red-50 border border-red-200 p-3 text-center">
+        <span className="inline-block rounded-full bg-red-700 px-4 py-1 text-xs font-bold uppercase tracking-wider text-white">
+          Sold
+        </span>
+        {liveItem?.soldAt && (
+          <p className="mt-1 text-xs text-red-700">
+            Sold on {new Date(liveItem.soldAt).toLocaleDateString()}
+            {liveItem?.buyerName ? ` to ${liveItem.buyerName}` : ""}
+          </p>
+        )}
+      </div>
+    )}
+
     {/* Title + Price */}
     <div>
       <h2 className="text-lg font-semibold tracking-tight">
-        {item?.phoneModel || "Product Name"}
+        {liveItem?.phoneModel || "Product Name"}
       </h2>
 
-      <p className="mt-2 text-lg font-bold text-gray-900">
-        NPR {formatNPR(item?.finalPrice ?? item?.basePrice ?? 0)}
+      <p className={`mt-2 text-lg font-bold${sold ? " text-gray-400 line-through" : " text-gray-900"}`}>
+        NPR {formatNPR(liveItem?.finalPrice ?? liveItem?.basePrice ?? 0)}
       </p>
     </div>
 
@@ -211,7 +292,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
         <div>
           <p className="text-xs text-gray-500">Screen</p>
           <p className="text-sm font-semibold">
-            {item?.deviceCondition || "Perfect"}
+            {liveItem?.deviceCondition || "Perfect"}
           </p>
         </div>
       </div>
@@ -230,7 +311,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
         <div>
           <p className="text-xs text-gray-500">Battery</p>
           <p className="text-sm font-semibold">
-            {item?.batteryHealth ?? "--"}%
+            {liveItem?.batteryHealth ?? "--"}%
           </p>
         </div>
       </div>
@@ -249,7 +330,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
         <div>
           <p className="text-xs text-gray-500">Camera</p>
           <p className="text-sm font-semibold">
-            {item?.cameraCondition ? "Excellent" : "Check"}
+            {liveItem?.cameraCondition ? "Excellent" : "Check"}
           </p>
         </div>
       </div>
@@ -268,7 +349,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
         <div>
           <p className="text-xs text-gray-500">Charger</p>
           <p className="text-sm font-semibold">
-            {item?.chargerAvailable ? "Original" : "Not Included"}
+            {liveItem?.chargerAvailable ? "Original" : "Not Included"}
           </p>
         </div>
       </div>
@@ -277,16 +358,46 @@ export default function ItemDetailView({ item }: { item: Item }) {
 
     {/* Buttons */}
     <div className="mt-auto pt-5 flex gap-3">
-      <button
-        onClick={() => router.push(`/booking/${item?._id ?? item?.id ?? ""}`)}
-        className="flex-1 rounded-xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition"
-      >
-        Book Now
-      </button>
+      {sold ? (
+        <div className="flex-1 text-center rounded-xl bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-500 cursor-not-allowed select-none">
+          Item Sold — No Longer Available
+        </div>
+      ) : (
+        <>
+          <button
+            onClick={() => router.push(`/booking/${liveItem?._id ?? liveItem?.id ?? ""}`)}
+            className="flex-1 rounded-xl bg-teal-700 px-4 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition"
+          >
+            Book Now
+          </button>
 
-      <button className="flex-1 rounded-xl border border-teal-700 px-4 py-3 text-sm font-semibold text-teal-700 hover:bg-teal-50 transition">
-        Add to Cart
-      </button>
+          <button
+            onClick={handleAddToCart}
+            disabled={cartStatus === "adding" || cartStatus === "added" || cartStatus === "already"}
+            className={[
+              "flex-1 rounded-xl border px-4 py-3 text-sm font-semibold transition",
+              cartStatus === "added"
+                ? "border-green-600 bg-green-50 text-green-700 cursor-default"
+                : cartStatus === "already"
+                ? "border-amber-500 bg-amber-50 text-amber-700 cursor-default"
+                : cartStatus === "adding"
+                ? "border-teal-700 bg-teal-50 text-teal-700 opacity-70 cursor-wait"
+                : "border-teal-700 text-teal-700 hover:bg-teal-50",
+            ].join(" ")}
+          >
+            {cartStatus === "adding"
+              ? "Adding…"
+              : cartStatus === "added"
+              ? "✓ Added to Cart"
+              : cartStatus === "already"
+              ? "Already in Cart"
+              : "Add to Cart"}
+          </button>
+          {cartError && (
+            <p className="w-full text-xs text-red-600 mt-1">{cartError}</p>
+          )}
+        </>
+      )}
     </div>
 
   </div>
@@ -298,7 +409,7 @@ export default function ItemDetailView({ item }: { item: Item }) {
       <section className="mt-10 border-t pt-7">
         <h3 className="text-xl font-semibold text-gray-900">Description</h3>
         <p className="mt-3 text-sm leading-relaxed text-gray-700">
-          {item?.description || "No description provided."}
+          {liveItem?.description || "No description provided."}
         </p>
       </section>
     </div>

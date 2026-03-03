@@ -94,9 +94,9 @@ export const handleLogin = async (formData: any) => {
 export const handleLogout = async () => {
   const cookieStore = await cookies();
 
-  cookieStore.set("auth_token", "", { maxAge: 0 });
-  cookieStore.set("user_data", "", { maxAge: 0 });
-  cookieStore.set("role", "", { maxAge: 0 });
+  cookieStore.delete("auth_token");
+  cookieStore.delete("user_data");
+  cookieStore.delete("role");
 };
 
 

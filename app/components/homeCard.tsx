@@ -27,8 +27,17 @@ function formatNPR(value: any) {
   return new Intl.NumberFormat("en-NP", { maximumFractionDigits: 0 }).format(n);
 }
 
+/** Check if item is sold based on backend fields */
+function isItemSold(it: any): boolean {
+  if (!it) return false;
+  if (it.isSold === true) return true;
+  if (String(it.status || "").toLowerCase() === "sold") return true;
+  return false;
+}
+
 export default function HomeCard({ item }: HomeCardProps) {
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const sold = isItemSold(item);
 
   const rawPhoto = item.photos?.[0];
   const imageUrl = rawPhoto
@@ -73,23 +82,28 @@ export default function HomeCard({ item }: HomeCardProps) {
   const id = rawId && String(rawId) !== "undefined" && String(rawId) !== "null" ? String(rawId) : null;
 
   const card = (
-    <div className="group rounded-xl border border-gray-200 bg-white p-2.5 shadow-[0_1px_0_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
+    <div className={`group rounded-xl border bg-white p-2.5 shadow-[0_1px_0_rgba(0,0,0,0.03)] transition ${sold ? "border-gray-300 opacity-75" : "border-gray-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"}`}>
       {/* Image */}
       <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
         <Image
           src={imageUrl}
           alt={item.phoneModel || "Item"}
           fill
-          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+          className={`object-cover transition duration-300 ${sold ? "grayscale opacity-60" : "group-hover:scale-[1.03]"}`}
           unoptimized={isLocalImage}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
 
-        {hasDiscount && (
+        {/* Sold badge takes priority over discount */}
+        {sold ? (
+          <div className="absolute left-2 top-2 rounded-full bg-red-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+            Sold
+          </div>
+        ) : hasDiscount ? (
           <div className="absolute left-2 top-2 rounded-full bg-teal-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm">
             -{discountPct}%
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Content */}
@@ -107,11 +121,11 @@ export default function HomeCard({ item }: HomeCardProps) {
 
         {/* Price (slightly bigger) */}
         <div className="mt-2 flex items-baseline gap-2">
-          <p className="text-[14px] font-extrabold text-gray-900">
+          <p className={`text-[14px] font-extrabold ${sold ? "text-gray-400 line-through" : "text-gray-900"}`}>
             NPR {formatNPR(finalPrice)}
           </p>
 
-          {hasDiscount && (
+          {!sold && hasDiscount && (
             <p className="text-[10.5px] text-gray-400 line-through">
               NPR {formatNPR(basePrice)}
             </p>
