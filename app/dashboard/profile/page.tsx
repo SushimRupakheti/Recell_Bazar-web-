@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { fetchMyProfile, updateMyProfile } from "@/lib/actions/user-action";
+import { handleLogout } from "@/lib/actions/auth-action";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // NOTE: use a client-side wrapper to call the server logout API
@@ -161,38 +162,13 @@ export default function ProfilePage() {
 
             <button
               onClick={async () => {
-                  try {
-                    const base = (process.env.NEXT_PUBLIC_API_BASE_URL || '').replace(/\/$/, '');
-                    const url = base ? `${base}/api/auth/logout` : '/api/auth/logout';
-                    const res = await fetch(url, { method: 'POST', credentials: 'include' });
-                    if (res.ok) {
-                      // clear client-side storage/cookies as a fallback
-                      try {
-                        // remove localStorage keys
-                        localStorage.removeItem('auth_token');
-                        localStorage.removeItem('user_data');
-                        localStorage.removeItem('token');
-                      } catch (e) {}
-
-                      try {
-                        // expire common cookies (non-httpOnly will be removed)
-                        const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
-                        document.cookie = `auth_token=; Expires=${expire}; Path=/`;
-                        document.cookie = `user_data=; Expires=${expire}; Path=/`;
-                        document.cookie = `token=; Expires=${expire}; Path=/`;
-                      } catch (e) {}
-
-                      // ensure navigation to login
-                      router.replace('/login');
-                      // also reload to clear any in-memory state
-                      try { window.location.replace('/login'); } catch (e) {}
-                    } else {
-                      toast.error('Logout failed');
-                    }
-                  } catch (err: any) {
-                    toast.error(err?.message || 'Logout failed');
-                  }
-                }}
+                try {
+                  await handleLogout();
+                  router.replace('/login');
+                } catch (err: any) {
+                  toast.error(err?.message || 'Logout failed');
+                }
+              }}
               className="border border-teal-700 text-teal-700 hover:bg-teal-700 hover:text-white text-xs font-medium px-4 py-2 rounded-sm transition"
             >
               Logout

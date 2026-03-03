@@ -216,6 +216,31 @@ export const handleUpdateItem = async (
 };
 
 /* =========================
+   Mark Item as Sold
+========================= */
+
+export const markItemAsSold = async (itemId: string) => {
+  const token = await getAuthToken();
+  if (!token) return { success: false, message: "Not authenticated" };
+
+  try {
+    const res = await fetch(`${BACKEND}/api/items/${itemId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ isSold: true, status: "sold" }),
+    });
+    const json = await res.json();
+    if (!res.ok) return { success: false, message: json.message || "Failed to update item" };
+    return { success: true, message: "Item marked as sold" };
+  } catch (err: any) {
+    return { success: false, message: err.message || "Network error" };
+  }
+};
+
+/* =========================
    Delete Item
 ========================= */
 

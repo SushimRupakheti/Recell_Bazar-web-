@@ -26,6 +26,15 @@ export const API = {
       UPDATE: (id: string) => `/api/admin/users/${id}`, // PUT/PATCH
       DELETE: (id: string) => `/api/admin/users/${id}`, // DELETE
     },
+    NOTIFICATIONS: {
+      SEND: "/api/admin/notifications",  // POST — broadcast to all users
+    },
+  },
+
+  NOTIFICATIONS: {
+    LIST: "/api/notifications",                              // GET all
+    MARK_READ: (id: string) => `/api/notifications/${id}/read`, // PUT
+    DELETE: (id: string) => `/api/notifications/${id}`,         // DELETE
   },
   ITEMS: {
     CREATE: "/api/items",

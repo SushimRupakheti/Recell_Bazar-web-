@@ -62,6 +62,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Link href="/admin/payments" className={linkClass("/admin/payments")} aria-current={pathname.startsWith("/admin/payments") ? "page" : undefined}>
             Payments
           </Link>
+
+          <Link href="/admin/notifications" className={linkClass("/admin/notifications")} aria-current={pathname.startsWith("/admin/notifications") ? "page" : undefined}>
+            Notifications
+          </Link>
         </nav>
 
         <div className="mt-4">

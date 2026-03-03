@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { createPaymentIntent as createPaymentIntentClient } from '@/lib/stripe-client';
+import { createCheckoutSession } from '@/lib/stripe-client';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5050';
 

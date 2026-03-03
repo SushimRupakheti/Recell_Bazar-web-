@@ -1,24 +1,27 @@
 // Frontend helper functions to interact with backend payment endpoints
-export type CreatePaymentIntentPayload = {
-  amount: number; // cents
-  currency?: string;
-  items?: any[];
+export type CreateCheckoutPayload = {
+  amount: number;
+  productName: string;
+  productId: string;
+  buyerName: string;
+  buyerEmail: string;
+  buyerPhone: string;
+  orderId?: string;
   metadata?: Record<string, any>;
-  customerEmail?: string;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
-export async function createPaymentIntent(payload: CreatePaymentIntentPayload) {
-  const url = `${API_BASE.replace(/\/$/, '')}/api/payments/create-payment-intent`;
+export async function createCheckoutSession(payload: CreateCheckoutPayload) {
+  const url = `${API_BASE.replace(/\/$/, '')}/api/payments/stripe/checkout`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data?.message || 'Failed to create payment intent');
-  return data as { success: boolean; clientSecret: string; paymentIntentId: string; amount?: number; currency?: string };
+  if (!res.ok) throw new Error(data?.message || 'Failed to create checkout session');
+  return data as { success: boolean; url?: string; clientSecret?: string; paymentIntentId?: string };
 }
 
 export async function getPaymentStatus(paymentIntentId: string) {

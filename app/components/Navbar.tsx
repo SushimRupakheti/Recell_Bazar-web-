@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Heart, ShoppingCart, User, Search } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 
 const LINKS = [
   { href: "/dashboard", label: "Home" },
@@ -67,6 +68,9 @@ export default function Navbar() {
                 className="bg-transparent outline-none w-full ml-2 text-sm text-gray-700 placeholder:text-gray-500"
               />
             </div>
+
+            {/* Notifications */}
+            <NotificationBell />
 
             {/* Wishlist */}
             <button

@@ -69,9 +69,9 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
     // client-side validation: required fields
     const missing: string[] = [];
     const itemId = itemState?._id ?? itemState?.id;
-    const amount = itemState?.finalPrice ?? itemState?.basePrice;
+    const rawAmount = itemState?.finalPrice ?? itemState?.basePrice;
     if (!itemId) missing.push("itemId");
-    if (!amount && amount !== 0) missing.push("amount");
+    if (!rawAmount && rawAmount !== 0) missing.push("amount");
     if (!name) missing.push("name");
     if (!number) missing.push("number");
     if (!email) missing.push("email");
@@ -85,7 +85,16 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
     try {
       // Build order payload
       const referenceId = `BK-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-      const amt = Number(amount) || 0;
+
+      // Ensure amount is a valid number — finalPrice is stored as a string in the DB
+      const rawPrice = itemState?.finalPrice ?? itemState?.basePrice;
+      const amt = typeof rawPrice === 'string' ? parseFloat(rawPrice) : Number(rawPrice);
+
+      if (!amt || !Number.isFinite(amt) || amt <= 0) {
+        setResult({ success: false, message: `Invalid price: "${rawPrice}". Cannot proceed with payment.`, raw: null });
+        setBusy(false);
+        return;
+      }
 
       const orderPayload = {
         oid: referenceId,
@@ -102,97 +111,58 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
         time: time,
       };
 
-      // debug log for developer
-      // eslint-disable-next-line no-console
-      console.log("Submitting order payload:", orderPayload);
-
-      // Create PaymentIntent via backend and redirect to our client-side checkout page
+      // Create PaymentIntent via backend Stripe Checkout endpoint
       const payload = {
-        amount: Math.round(amt * 100) || Math.round(amt), // ensure cents
-        currency: 'usd',
-        items: [{ id: itemId, qty: 1 }],
+        amount: amt,
+        productName: itemState?.phoneModel ?? 'Phone',
+        productId: itemId,
+        buyerName: name,
+        buyerEmail: email,
+        buyerPhone: number,
+        orderId: referenceId,
         metadata: orderPayload,
-        customerEmail: email,
       };
+
+      // Debug: log the EXACT payload being sent
+      // eslint-disable-next-line no-console
+      console.log("Stripe checkout payload:", JSON.stringify(payload, null, 2));
+      // eslint-disable-next-line no-console
+      console.log("amount type:", typeof payload.amount, "value:", payload.amount);
 
       // call helper route on backend via public API base
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5050';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-      // Try the modern create-payment-intent endpoint first. If backend does not support it
-      // (returns HTML or non-JSON), fall back to the legacy /api/payments/stripe/checkout which returns a redirect URL.
-      const resp = await fetch(`${apiBase}/api/payments/create-payment-intent`, {
+      const resp = await fetch(`${apiBase}/api/payments/stripe/checkout`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(payload),
       });
 
-      let created: any = null;
-      try {
-        created = await resp.json();
-      } catch (parseErr) {
-        // backend didn't return JSON (likely returned HTML 404 or an error page)
-        // fallback to original stripe checkout endpoint (legacy behavior)
-        try {
-          const fallback = await fetch(`${apiBase}/api/payments/stripe/checkout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount: amt,
-              productName: itemState?.phoneModel ?? 'Phone',
-              productId: itemId,
-              buyerName: name,
-              buyerEmail: email,
-              buyerPhone: number,
-              orderId: referenceId,
-              metadata: orderPayload,
-            }),
-          });
-          const fdata = await fallback.json().catch(() => null);
-          if (fallback.ok && fdata?.url) {
-            window.location.href = fdata.url;
-            setResult({ success: true, message: 'Redirecting to Stripe Checkout...' });
-            setBusy(false);
-            return;
-          }
-        } catch (e) {
-          // continue to throw below
-        }
+      const created = await resp.json();
 
-        throw new Error('Backend did not return JSON for create-payment-intent; fallback failed');
+      if (!resp.ok) throw new Error(created?.message || 'Failed to create checkout session');
+
+      // If backend returns a Stripe Checkout redirect URL
+      if (created?.url) {
+        // Save productId so the success page can mark it as sold
+        if (typeof window !== 'undefined' && itemId) {
+          localStorage.setItem('pending_payment_product_id', itemId);
+        }
+        window.location.href = created.url;
+        setResult({ success: true, message: 'Redirecting to Stripe Checkout...' });
+        setBusy(false);
+        return;
       }
 
-      if (!resp.ok) throw new Error(created?.message || 'Failed to create payment intent');
-
-      // Navigate to client checkout page where Payment Element is mounted
+      // If backend returns a client secret for Stripe Elements
       const clientSecret = created.clientSecret || created.client_secret || created.data?.clientSecret;
-      const paymentIntentId = created.paymentIntentId || created.id || created.paymentIntentId;
+      const paymentIntentId = created.paymentIntentId || created.id || created.data?.paymentIntentId;
       if (!clientSecret) {
-        // fallback to legacy checkout if available
-        try {
-          const fallback = await fetch(`${apiBase}/api/payments/stripe/checkout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount: amt,
-              productName: itemState?.phoneModel ?? 'Phone',
-              productId: itemId,
-              buyerName: name,
-              buyerEmail: email,
-              buyerPhone: number,
-              orderId: referenceId,
-              metadata: orderPayload,
-            }),
-          });
-          const fdata = await fallback.json().catch(() => null);
-          if (fallback.ok && fdata?.url) {
-            window.location.href = fdata.url;
-            setResult({ success: true, message: 'Redirecting to Stripe Checkout...' });
-            setBusy(false);
-            return;
-          }
-        } catch (e) {}
-
-        throw new Error('Missing client secret from backend');
+        throw new Error('Missing client secret or redirect URL from backend');
       }
 
       // redirect to internal checkout page which will mount Stripe Elements
