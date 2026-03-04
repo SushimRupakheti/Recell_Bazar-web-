@@ -11,7 +11,6 @@ type Props = {
 };
 
 function SectionHeader({
-  eyebrow,
   title,
   action,
 }: {
@@ -321,15 +320,15 @@ export default function DashboardHomeView({ items: initialItems = [], anyRes }: 
                   ].map((f) => (
                     <div
                       key={f.title}
-                      className="rounded-2xl border bg-white p-4 shadow-sm transition hover:shadow-md"
+                      className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md sm:p-6"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-teal-700/10">
-                          <Image src={f.icon} alt={f.title} width={18} height={18} className="object-contain" />
+                      <div className="flex items-start gap-4">
+                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-teal-700/10">
+                          <Image src={f.icon} alt={f.title} width={22} height={22} className="object-contain" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{f.title}</p>
-                          <p className="text-xs text-gray-500">{f.desc}</p>
+                          <p className="text-base font-semibold text-gray-900">{f.title}</p>
+                          <p className="text-sm text-gray-500">{f.desc}</p>
                         </div>
                       </div>
                     </div>

@@ -209,51 +209,41 @@ export const proxyCreateItem = async (body: any, cookieHeader?: string) => {
    //Price Calculation Helper
   
 
-export const computeFinalPrice = (basePrice: number, p: Partial<ItemPayload & { batteryHealth?: number; year?: number }>) => {
-  let price = basePrice || 0;
+export const computeFinalPrice = (
+  basePrice: number,
+  p: Partial<ItemPayload & { batteryHealth?: number; year?: number }>
+) => {
+  let deduction = 0;
 
-  // Major Issues
-  if (p.liquidDamage) price *= 0.5;
-  if (p.switchOn === false) price *= 0.6;
-  if (p.receiveCall === false) price *= 0.8;
+  if (p.liquidDamage) deduction += 0.5;
+  if (p.switchOn === false) deduction += 0.4;
+  if (p.receiveCall === false) deduction += 0.2;
+  if (p.features1Condition === false) deduction += 0.1;
+  if (p.features2Condition === false) deduction += 0.1;
+  if (p.cameraCondition === false) deduction += 0.15;
+  if (p.displayCondition === false) deduction += 0.2;
+  if (p.displayCracked) deduction += 0.3;
+  if (p.displayOriginal === false) deduction += 0.15;
+  if (p.factoryUnlock === false) deduction += 0.4;
+  if (p.chargerAvailable === false) deduction += 0.05;
+  if (p.repairedBoard) deduction += 0.2;
 
-  // Feature Conditions
-  if (p.features1Condition === false) price *= 0.9;
-  if (p.features2Condition === false) price *= 0.9;
+  // Battery adjustment
+  const battery = typeof p.batteryHealth === "number" ? p.batteryHealth : 100;
+  let price = (basePrice || 0) * (battery / 100);
 
-  // Camera + Display Conditions
-  if (p.cameraCondition === false) price *= 0.85;
-  if (p.displayCondition === false) price *= 0.8;
-
-  // Display Damage
-  if (p.displayCracked) price *= 0.7;
-  if (p.displayOriginal === false) price *= 0.85;
-
-  // Unlock Status
-  if (p.factoryUnlock === false) price *= 0.6;
-
-  // Charger Deduction
-  if (p.chargerAvailable === false) price *= 0.95;
-
-  // Battery Effect
-  const battery = typeof p.batteryHealth === 'number' ? p.batteryHealth : 100;
-  price *= (battery / 100);
-
-  // Age Deduction (kept but defaults to no deduction if year not provided)
+  // Age deduction
   const currentYear = new Date().getFullYear();
-  const year = typeof p.year === 'number' ? p.year : currentYear;
+  const year = typeof p.year === "number" ? p.year : currentYear;
   const age = currentYear - year;
-  if (age > 0) {
-    price *= (1 - (0.05 * age));
-  }
+  if (age > 0) deduction += 0.05 * age;
 
-  // Repaired Board Deduction
-  if (p.repairedBoard) price *= 0.8;
+  // Apply total deduction
+  price = price * (1 - deduction);
 
   if (price < 0) price = 0;
   return price;
 };
-
 
    //Upload Photos (client helper)
 

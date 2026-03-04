@@ -1,3 +1,5 @@
+"use client";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import {
   Store,
@@ -9,10 +11,11 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+
 const STATS = [
   {
     value: "10.5 K",
-    label: "Sellers active our site",
+    label: "Sellers active on our site",
     icon: Store,
   },
   {
@@ -23,12 +26,12 @@ const STATS = [
   },
   {
     value: "45.5 K",
-    label: "Customer active in our site",
+    label: "Customers active on our site",
     icon: Users,
   },
   {
     value: "20 M+",
-    label: "Anual gross sale in our site",
+    label: "Annual gross sale on our site",
     icon: HandCoins,
   },
 ];
@@ -57,7 +60,12 @@ export default function AboutPage() {
       <div className="mx-auto max-w-6xl px-6 py-14">
         {/* OUR STORY */}
         <section className="grid gap-12 md:grid-cols-2 md:items-start">
-          <div className="max-w-md">
+          <motion.div
+            className="max-w-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+          >
             <h2 className="text-4xl font-semibold tracking-wide text-teal-700">
               Our Story
             </h2>
@@ -66,8 +74,8 @@ export default function AboutPage() {
               Born out of a passion for sustainable living and ethical
               craftsmanship, Felt and Wools began with a simple mission: to make
               everyday essentials feel more natural. What started as a small
-              community initiative has now grown into a full-blown movement —
-              one that empowers local artisans and promotes eco-conscious living.
+              community initiative has now grown into a full-blown movement — one
+              that empowers local artisans and promotes eco-conscious living.
             </p>
 
             <p className="mt-4 text-xs leading-relaxed text-gray-600">
@@ -75,23 +83,34 @@ export default function AboutPage() {
               every product we make tells a story — woven with tradition,
               sustainability, and heart.
             </p>
-          </div>
+          </motion.div>
 
           <div className="relative h-44 w-full overflow-hidden rounded-md md:h-52">
-            <Image
-              src="/about-1.png"
-              alt="Our Story"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
+            <motion.div
+              className="h-full w-full"
+              initial={{ scale: 1.1 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              <Image
+                src="/about-1.png"
+                alt="Our Story"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                priority
+              />
+            </motion.div>
           </div>
         </section>
 
         {/* VISION */}
         <section className="mt-12 grid gap-12 md:grid-cols-2 md:items-start">
-          <div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
             <h3 className="text-xl font-semibold tracking-widest text-teal-700">
               VISION
             </h3>
@@ -119,10 +138,14 @@ export default function AboutPage() {
               but for the next generation of creators, consumers, and
               changemakers.
             </p>
-          </div>
+          </motion.div>
 
-          {/* smaller image pushed down/right like screenshot */}
-          <div className="flex justify-end">
+          <motion.div
+            className="flex justify-end"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          >
             <div className="relative mt-14 h-52 w-full max-w-sm overflow-hidden rounded-md md:mt-20 md:h-56">
               <Image
                 src="/about-2.png"
@@ -132,13 +155,18 @@ export default function AboutPage() {
                 className="object-cover"
               />
             </div>
-          </div>
+          </motion.div>
         </section>
 
-        {/* STATS + SUSTAINABLE (same row like screenshot) */}
+        {/* STATS + SUSTAINABLE */}
         <section className="mt-14 grid gap-12 lg:grid-cols-[420px_1fr] lg:items-start">
           {/* stats cards */}
-          <div className="grid grid-cols-2 gap-5">
+          <motion.div
+            className="grid grid-cols-2 gap-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 1 }}
+          >
             {STATS.map((s) => {
               const Icon = s.icon;
               const isHi = !!s.highlight;
@@ -147,7 +175,7 @@ export default function AboutPage() {
                 <div
                   key={s.label}
                   className={[
-                    "rounded-md border p-6 text-center",
+                    "rounded-md border p-6 text-center transition-all",
                     isHi
                       ? "border-teal-700 bg-teal-700 text-white"
                       : "border-gray-200 bg-white text-gray-700",
@@ -155,7 +183,7 @@ export default function AboutPage() {
                 >
                   <div
                     className={[
-                      "mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full",
+                      "mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full transition-all",
                       isHi ? "bg-white" : "bg-gray-100",
                     ].join(" ")}
                   >
@@ -177,51 +205,56 @@ export default function AboutPage() {
                 </div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* sustainable text */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+          >
             <h3 className="text-xs font-semibold tracking-widest text-teal-700">
               SUSTAINABLE
             </h3>
             <p className="mt-4 max-w-2xl text-xs leading-relaxed text-gray-600">
-              To us, sustainability isn’t just a side note — it’s the foundation.
-              Every decision we make at Felt and Wools is driven by a long-term
-              commitment to environmental responsibility. We work primarily with
-              natural, biodegradable cotton materials that are locally sourced
-              and processed with minimal environmental impact. Our production
-              process focuses on reducing waste, conserving water, and cutting
-              out harmful chemicals. We use low-impact packaging and are
-              constantly improving how we design for reuse and longevity.
-              Because real sustainability isn’t just about what something is
-              made from — it’s about how long it lasts and where it ends up. We
-              also support circular thinking. From reusing production scraps to
-              exploring compostable packaging, we’re designing systems that do
-              more than just look green — they actually are.
+              To us, sustainability isn’t just a side note — it’s the
+              foundation. Every decision we make at Felt and Wools is driven by
+              a long-term commitment to environmental responsibility. We work
+              primarily with natural, biodegradable cotton materials that are
+              locally sourced and processed with minimal environmental impact.
+              Our production process focuses on reducing waste, conserving
+              water, and cutting out harmful chemicals. We use low-impact
+              packaging and are constantly improving how we design for reuse
+              and longevity. Because real sustainability isn’t just about what
+              something is made from — it’s about how long it lasts and where
+              it ends up. We also support circular thinking. From reusing
+              production scraps to exploring compostable packaging, we’re
+              designing systems that do more than just look green — they actually
+              are.
             </p>
-          </div>
+          </motion.div>
         </section>
 
         {/* COMMUNITY EMPOWERMENT */}
         <section className="mt-12">
-          <h3 className="text-xs font-semibold tracking-widest text-teal-700">
-            COMMUNITY EMPOWERMENT
-          </h3>
-          <p className="mt-4 max-w-5xl text-xs leading-relaxed text-gray-600">
-            To us, sustainability isn’t just a side note — it’s the foundation.
-            Every decision we make at Felt and Wools is driven by a long-term
-            commitment to environmental responsibility. We work primarily with
-            natural, biodegradable cotton materials that are locally sourced and
-            processed with minimal environmental impact. Our production process
-            focuses on reducing waste, conserving water, and cutting out harmful
-            chemicals. We use low-impact packaging and are constantly improving
-            how we design for durability and longevity. Because real
-            sustainability isn’t just about what something is made from — it’s
-            about how long it lasts and where it ends up. We also support
-            circular thinking. From reusing production scraps to exploring
-            compostable packaging, we’re designing systems that do more than
-            just look green — they actually are.
-          </p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 1 }}
+          >
+            <h3 className="text-xs font-semibold tracking-widest text-teal-700">
+              COMMUNITY EMPOWERMENT
+            </h3>
+            <p className="mt-4 max-w-5xl text-xs leading-relaxed text-gray-600">
+              Community empowerment goes hand in hand with our commitment to
+              sustainability. We believe in the power of community to create
+              real change. By empowering local artisans and investing in
+              sustainable practices, we are creating a lasting impact that
+              extends far beyond the products we sell. Every purchase you make
+              at Felt and Wools supports a vision for a better, more sustainable
+              future.
+            </p>
+          </motion.div>
         </section>
 
         {/* TRUST / SERVICES */}
@@ -229,7 +262,13 @@ export default function AboutPage() {
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className="text-center">
+              <motion.div
+                key={f.title}
+                className="text-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.4, duration: 1 }}
+              >
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-100">
                   <Icon size={20} className="text-teal-700" />
                 </div>
@@ -239,7 +278,7 @@ export default function AboutPage() {
                 <p className="mt-2 text-[10px] leading-relaxed text-gray-500">
                   {f.desc}
                 </p>
-              </div>
+              </motion.div>
             );
           })}
         </section>

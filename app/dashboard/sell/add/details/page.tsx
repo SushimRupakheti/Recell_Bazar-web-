@@ -11,8 +11,12 @@ export default function DashboardSellAddDetailsPage() {
   const brand = searchParams?.get("brand") || "";
   const model = searchParams?.get("model") || "";
 
+  const basePrefix =
+    typeof window !== "undefined" && window.location.pathname.includes("/dashboard")
+      ? "/dashboard"
+      : "";
+
   const [step, setStep] = useState<number>(1);
-  const [basePrefix, setBasePrefix] = useState<string>("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [batteryHealth, setBatteryHealth] = useState<number>(100);
   const [chargerAvailable, setChargerAvailable] = useState<boolean>(true);
@@ -61,13 +65,8 @@ export default function DashboardSellAddDetailsPage() {
   ]);
 
   useEffect(() => {
-    // determine whether the flow was opened from dashboard or public sell
-    if (typeof window !== "undefined") {
-      setBasePrefix(window.location.pathname.includes("/dashboard") ? "/dashboard" : "");
-    }
-
     if (!brand || !model) router.replace(`${basePrefix}/sell/add`);
-  }, [brand, model, router]);
+  }, [brand, model, router, basePrefix]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
