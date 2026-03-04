@@ -60,7 +60,7 @@ export default function Navbar() {
           {/* Right: Search + Icons */}
           <div className="flex items-center gap-3">
             {/* Search */}
-            <div className="hidden sm:flex items-center w-[320px] md:w-[360px] lg:w-[420px] bg-gray-100 rounded-full px-4 py-2">
+            <div className="hidden sm:flex items-center w-[320px] md:w-90 lg:w-105 bg-gray-100 rounded-full px-4 py-2">
               <Search className="h-4 w-4 text-gray-500" />
               <input
                 type="text"
@@ -72,17 +72,7 @@ export default function Navbar() {
             {/* Notifications */}
             <NotificationBell />
 
-            {/* Wishlist */}
-            <button
-              type="button"
-              className="relative h-10 w-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition"
-              aria-label="Wishlist"
-            >
-              <Heart className="h-5 w-5 text-gray-700" />
-              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-red-500 text-white text-[11px] flex items-center justify-center">
-                4
-              </span>
-            </button>
+
 
             {/* Cart */}
             <Link

@@ -102,17 +102,18 @@ export const handleCreateItem = async (formData: ItemPayload) => {
    Get All Items
 ========================= */
 
-export const handleGetAllItems = async (opts?: { page?: number; limit?: number }) => {
+export const handleGetAllItems = async (opts?: { page?: number; limit?: number; status?: string }) => {
   try {
     const page = opts?.page ?? 1;
     const limit = opts?.limit ?? 10;
     const token = await getAuthToken();
-    const url = `${BACKEND}/api/items?page=${page}&limit=${limit}`;
+    let url = `${BACKEND}/api/items?page=${page}&limit=${limit}`;
+    if (opts?.status) url += `&status=${encodeURIComponent(opts.status)}`;
 
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const resp = await fetch(url, { method: "GET", headers });
+    const resp = await fetch(url, { method: "GET", headers, cache: "no-store" });
     const text = await resp.text();
     const ct = resp.headers.get("content-type") || "application/json";
     let parsed: any = null;

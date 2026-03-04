@@ -2,7 +2,7 @@ import { handleGetAllItems } from "@/lib/actions/item-action";
 import DashboardHomeView from "./DashboardHomeView";
 
 export default async function DashboardHomePage() {
-  const res = await handleGetAllItems();
+  const res = await handleGetAllItems({ status: "approved" });
   const anyRes = res as any;
 
   // normalize different possible response shapes

@@ -14,7 +14,11 @@ export default function StatusSelect({ id, status }: { id: string; status?: stri
       const res = await fetch(`/api/admin/items/${id}`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+          // keep isSold in sync so display components don't show stale state
+          isSold: newStatus === "sold",
+        }),
       });
       if (!res.ok) {
         let msg = "Failed to update status";

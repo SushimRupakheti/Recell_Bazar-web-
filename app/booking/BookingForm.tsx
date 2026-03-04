@@ -6,11 +6,14 @@ import { useRouter } from "next/navigation";
 type Item = any;
 type User = any;
 
-/** Helper: check if an item is sold based on backend fields */
+/** Helper: check if an item is sold based on backend fields.
+ *  `status` is the canonical source of truth.
+ */
 function isItemSold(it: any): boolean {
   if (!it) return false;
-  if (it.isSold === true) return true;
-  if (String(it.status || "").toLowerCase() === "sold") return true;
+  const status = String(it.status || "").toLowerCase();
+  if (status === "sold") return true;
+  if (!status && it.isSold === true) return true;
   return false;
 }
 
@@ -58,6 +61,14 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if this is the user's own item
+    const sellerId = itemState?.sellerId?._id ?? itemState?.sellerId ?? "";
+    const userId = user?._id ?? user?.id ?? "";
+    if (sellerId && userId && String(sellerId) === String(userId)) {
+      setResult({ success: false, message: "You cannot buy your own item.", raw: null });
+      return;
+    }
 
     // Check sold status before allowing order
     if (isItemSold(itemState)) {

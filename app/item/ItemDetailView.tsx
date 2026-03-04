@@ -5,6 +5,7 @@ import Navbar from "@/app/components/Navbar";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/lib/actions/cart-action";
+import { getAuthUser } from "@/lib/actions/auth-action";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050";
@@ -20,11 +21,14 @@ function normalizePhoto(src: any) {
 
 type Item = any;
 
-/** Helper: determine if an item is sold based on backend fields */
+/** Helper: determine if an item is sold based on backend fields.
+ *  `status` is the canonical source of truth.
+ */
 function isItemSold(it: any): boolean {
   if (!it) return false;
-  if (it.isSold === true) return true;
-  if (String(it.status || "").toLowerCase() === "sold") return true;
+  const status = String(it.status || "").toLowerCase();
+  if (status === "sold") return true;
+  if (!status && it.isSold === true) return true;
   return false;
 }
 
@@ -109,6 +113,23 @@ export default function ItemDetailView({ item }: { item: Item }) {
   }, [rating]);
 
   const router = useRouter();
+
+  // ---- Own-item check ----
+  const [isOwnItem, setIsOwnItem] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const authUser = await getAuthUser();
+        if (!authUser?.id) return;
+        const sellerId =
+          liveItem?.sellerId?._id ?? liveItem?.sellerId ?? "";
+        if (sellerId && String(sellerId) === String(authUser.id)) {
+          setIsOwnItem(true);
+        }
+      } catch {}
+    })();
+  }, [liveItem]);
 
   // ---- Cart state ----
   const [cartStatus, setCartStatus] = useState<"idle" | "adding" | "added" | "already">("idle");
@@ -361,6 +382,10 @@ export default function ItemDetailView({ item }: { item: Item }) {
       {sold ? (
         <div className="flex-1 text-center rounded-xl bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-500 cursor-not-allowed select-none">
           Item Sold — No Longer Available
+        </div>
+      ) : isOwnItem ? (
+        <div className="flex-1 text-center rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm font-semibold text-amber-700 cursor-not-allowed select-none">
+          This is your own listing
         </div>
       ) : (
         <>

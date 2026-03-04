@@ -29,6 +29,32 @@ export default async function Page({ params }: Props) {
   // Guard: if item is already sold on the server, show a message instead of the booking form
   const isSold = item?.isSold === true || String(item?.status || "").toLowerCase() === "sold";
 
+  // Guard: prevent booking own item
+  const itemSellerId = item?.sellerId?._id ?? item?.sellerId ?? "";
+  const currentUserId = user?._id ?? user?.id ?? "";
+  const isOwnItem = itemSellerId && currentUserId && String(itemSellerId) === String(currentUserId);
+
+  if (isOwnItem) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <div className="mx-auto max-w-sm rounded-xl bg-amber-50 border border-amber-200 p-8">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+            <svg className="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">This Is Your Listing</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            You cannot purchase your own item.
+          </p>
+          <a href="/dashboard" className="mt-6 inline-block rounded-md bg-teal-700 px-6 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition">
+            Browse Other Items
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   if (isSold) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center">

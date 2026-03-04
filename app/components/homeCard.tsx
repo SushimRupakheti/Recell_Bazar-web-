@@ -27,11 +27,17 @@ function formatNPR(value: any) {
   return new Intl.NumberFormat("en-NP", { maximumFractionDigits: 0 }).format(n);
 }
 
-/** Check if item is sold based on backend fields */
+/** Check if item is sold based on backend fields.
+ *  `status` is the canonical source of truth — if the admin changed
+ *  status back to "approved" the item is NOT sold even when the
+ *  legacy `isSold` boolean was left stale.
+ */
 function isItemSold(it: any): boolean {
   if (!it) return false;
-  if (it.isSold === true) return true;
-  if (String(it.status || "").toLowerCase() === "sold") return true;
+  const status = String(it.status || "").toLowerCase();
+  if (status === "sold") return true;
+  // Only trust isSold when status is absent / empty
+  if (!status && it.isSold === true) return true;
   return false;
 }
 

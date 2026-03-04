@@ -213,13 +213,13 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen">
         <div className="mx-auto w-full max-w-6xl px-4 py-8">
           {/* Header */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">Admin Dashboard</h1>
-              <p className="mt-1 text-sm text-slate-600">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-white">Admin Dashboard</h1>
+              <p className="mt-1 text-sm text-gray-400">
                 Overview of users, admins and marketplace activity.
               </p>
             </div>
@@ -227,13 +227,13 @@ export default function AdminDashboardPage() {
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/admin/users"
-                className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm font-medium text-gray-200 shadow-sm hover:bg-gray-700"
               >
                 Manage Users
               </Link>
               <Link
                 href="/admin/items"
-                className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
               >
                 View Items
               </Link>
@@ -242,65 +242,65 @@ export default function AdminDashboardPage() {
 
           {/* Top status */}
           {(loading || itemsLoading) && (
-            <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4">
+            <div className="mt-6 rounded-xl border border-gray-800 bg-gray-900 p-4">
               <div className="flex items-center gap-3">
-                <div className="h-3 w-3 animate-pulse rounded-full bg-slate-300" />
-                <p className="text-sm text-slate-600">Loading dashboard data…</p>
+                <div className="h-3 w-3 animate-pulse rounded-full bg-gray-600" />
+                <p className="text-sm text-gray-400">Loading dashboard data…</p>
               </div>
             </div>
           )}
 
           {(error || itemsError) && (
-            <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 p-4">
-              <p className="text-sm font-medium text-rose-800">Something went wrong</p>
-              <p className="mt-1 text-sm text-rose-700">{error || itemsError}</p>
+            <div className="mt-6 rounded-xl border border-rose-800 bg-rose-900/30 p-4">
+              <p className="text-sm font-medium text-rose-400">Something went wrong</p>
+              <p className="mt-1 text-sm text-rose-300">{error || itemsError}</p>
             </div>
           )}
 
           {/* Stat Cards */}
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-600">Total Users</p>
-                <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                <p className="text-sm font-medium text-gray-400">Total Users</p>
+                <span className="rounded-md bg-gray-800 px-2 py-1 text-xs font-medium text-gray-300">
                   Users
                 </span>
               </div>
               <div className="mt-3 flex items-end justify-between">
-                <p className="text-3xl font-semibold text-slate-900">
+                <p className="text-3xl font-semibold text-white">
                   {loading ? "—" : stats.total}
                 </p>
-                <p className="text-xs text-slate-500">All roles</p>
+                <p className="text-xs text-gray-500">All roles</p>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-600">Admins</p>
-                <span className="rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700">
+                <p className="text-sm font-medium text-gray-400">Admins</p>
+                <span className="rounded-md bg-indigo-900/40 px-2 py-1 text-xs font-medium text-indigo-400">
                   Admin
                 </span>
               </div>
               <div className="mt-3 flex items-end justify-between">
-                <p className="text-3xl font-semibold text-slate-900">
+                <p className="text-3xl font-semibold text-white">
                   {loading ? "—" : stats.admins}
                 </p>
-                <p className="text-xs text-slate-500">Active admins</p>
+                <p className="text-xs text-gray-500">Active admins</p>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-600">Regular Users</p>
-                <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
+                <p className="text-sm font-medium text-gray-400">Regular Users</p>
+                <span className="rounded-md bg-emerald-900/40 px-2 py-1 text-xs font-medium text-emerald-400">
                   User
                 </span>
               </div>
               <div className="mt-3 flex items-end justify-between">
-                <p className="text-3xl font-semibold text-slate-900">
+                <p className="text-3xl font-semibold text-white">
                   {loading ? "—" : stats.regular}
                 </p>
-                <p className="text-xs text-slate-500">Non-admin</p>
+                <p className="text-xs text-gray-500">Non-admin</p>
               </div>
             </div>
           </div>
@@ -308,24 +308,24 @@ export default function AdminDashboardPage() {
           {/* Main Grid */}
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
             {/* Items Chart */}
-            <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="lg:col-span-2 rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-sm">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-900">Items Activity</h2>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <h2 className="text-base font-semibold text-white">Items Activity</h2>
+                  <p className="mt-1 text-sm text-gray-400">
                     Total items:{" "}
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-white">
                       {itemsLoading ? "—" : itemsCount ?? itemsRaw.length}
                     </span>
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <label className="text-sm text-slate-600">Range</label>
+                  <label className="text-sm text-gray-400">Range</label>
                   <select
                     value={chartDays}
                     onChange={(e) => setChartDays(Number(e.target.value))}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                    className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-600"
                   >
                     <option value={7}>Last 7 days</option>
                     <option value={14}>Last 14 days</option>
@@ -336,14 +336,14 @@ export default function AdminDashboardPage() {
 
               <div className="mt-4">
                 {itemsLoading ? (
-                  <div className="h-36 animate-pulse rounded-lg bg-slate-100" />
+                  <div className="h-36 animate-pulse rounded-lg bg-gray-800" />
                 ) : itemsError ? (
-                  <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+                  <div className="rounded-lg border border-rose-800 bg-rose-900/30 p-3 text-sm text-rose-400">
                     {itemsError}
                   </div>
                 ) : chart.counts.length ? (
                   <div className="w-full">
-                    <div className="h-36 w-full rounded-lg bg-slate-50 p-3">
+                    <div className="h-36 w-full rounded-lg bg-gray-800/50 p-3">
                       <svg viewBox="0 0 320 110" preserveAspectRatio="none" className="h-full w-full">
                         {/* grid */}
                         {[0, 0.25, 0.5, 0.75, 1].map((t, idx) => (
@@ -353,7 +353,7 @@ export default function AdminDashboardPage() {
                             x2={312}
                             y1={10 + (1 - t) * 80}
                             y2={10 + (1 - t) * 80}
-                            stroke="#e2e8f0"
+                            stroke="#374151"
                             strokeWidth={1}
                           />
                         ))}
@@ -379,7 +379,7 @@ export default function AdminDashboardPage() {
                                   width={barW}
                                   height={h}
                                   rx={4}
-                                  fill="#2563eb"
+                                  fill="#3b82f6"
                                   opacity={0.9}
                                 />
                               </g>
@@ -388,23 +388,23 @@ export default function AdminDashboardPage() {
                         })()}
 
                         {/* y labels */}
-                        <text x={2} y={98} fontSize={10} fill="#64748b">
+                        <text x={2} y={98} fontSize={10} fill="#9ca3af">
                           0
                         </text>
-                        <text x={2} y={16} fontSize={10} fill="#64748b">
+                        <text x={2} y={16} fontSize={10} fill="#9ca3af">
                           {chart.max}
                         </text>
                       </svg>
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
                       <div>{chart.labelLeft}</div>
                       <div>Last {chart.days} days</div>
                       <div>{chart.labelRight}</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+                  <div className="rounded-lg border border-gray-800 bg-gray-800/50 p-3 text-sm text-gray-400">
                     No data available.
                   </div>
                 )}
@@ -412,14 +412,14 @@ export default function AdminDashboardPage() {
 
               {/* Category breakdown chart */}
               <div className="mt-6">
-                <h3 className="text-sm font-semibold text-slate-900">Items by Category</h3>
-                <p className="mt-1 text-xs text-slate-500">Top categories from recent items</p>
+                <h3 className="text-sm font-semibold text-white">Items by Category</h3>
+                <p className="mt-1 text-xs text-gray-500">Top categories from recent items</p>
 
                 <div className="mt-3">
                   {itemsLoading ? (
-                    <div className="h-24 animate-pulse rounded-lg bg-slate-100" />
+                    <div className="h-24 animate-pulse rounded-lg bg-gray-800" />
                   ) : itemsError ? (
-                    <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+                    <div className="rounded-lg border border-rose-800 bg-rose-900/30 p-3 text-sm text-rose-400">
                       {itemsError}
                     </div>
                   ) : (() => {
@@ -435,7 +435,7 @@ export default function AdminDashboardPage() {
                     const total = entries.reduce((s, e) => s + e[1], 0) || 1;
 
                     if (!entries.length) return (
-                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">No categories.</div>
+                      <div className="rounded-lg border border-gray-800 bg-gray-800/50 p-3 text-sm text-gray-400">No categories.</div>
                     );
 
                     return (
@@ -444,13 +444,13 @@ export default function AdminDashboardPage() {
                           const pct = Math.round((v / total) * 100);
                           return (
                             <div key={k} className="flex items-center gap-3">
-                              <div className="w-36 text-xs text-slate-700 truncate">{k}</div>
+                              <div className="w-36 text-xs text-gray-300 truncate">{k}</div>
                               <div className="flex-1">
-                                <div className="h-3 rounded-full bg-slate-100">
+                                <div className="h-3 rounded-full bg-gray-800">
                                   <div className={`h-3 rounded-full bg-teal-600`} style={{ width: `${pct}%` }} />
                                 </div>
                               </div>
-                              <div className="w-12 text-right text-xs text-slate-600">{v}</div>
+                              <div className="w-12 text-right text-xs text-gray-400">{v}</div>
                             </div>
                           );
                         })}
@@ -462,10 +462,10 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Recent Items */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-slate-900">Recent Items</h2>
-                <Link href="/items" className="text-sm font-medium text-slate-900 hover:underline">
+                <h2 className="text-base font-semibold text-white">Recent Items</h2>
+                <Link href="/items" className="text-sm font-medium text-gray-300 hover:underline">
                   View all
                 </Link>
               </div>
@@ -474,11 +474,11 @@ export default function AdminDashboardPage() {
                 {itemsLoading ? (
                   <div className="space-y-3">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="h-12 animate-pulse rounded-lg bg-slate-100" />
+                      <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-800" />
                     ))}
                   </div>
                 ) : itemsError ? (
-                  <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+                  <div className="rounded-lg border border-rose-800 bg-rose-900/30 p-3 text-sm text-rose-400">
                     {itemsError}
                   </div>
                 ) : itemsPreview.length ? (
@@ -486,14 +486,14 @@ export default function AdminDashboardPage() {
                     {itemsPreview.map((it, idx) => (
                       <li
                         key={it?._id || idx}
-                        className="rounded-lg border border-slate-200 p-3 hover:bg-slate-50"
+                        className="rounded-lg border border-gray-800 p-3 hover:bg-gray-800/60"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-slate-900">
+                            <p className="truncate text-sm font-semibold text-gray-100">
                               {formatItemTitle(it)}
                             </p>
-                            <p className="mt-1 truncate text-xs text-slate-600">
+                            <p className="mt-1 truncate text-xs text-gray-400">
                               {formatItemSub(it)}
                             </p>
                           </div>
@@ -502,7 +502,7 @@ export default function AdminDashboardPage() {
                           {it?._id ? (
                             <Link
                               href={`/item/${it._id}`}
-                              className="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                              className="shrink-0 rounded-md border border-gray-700 bg-gray-800 px-2 py-1 text-xs font-medium text-gray-300 hover:bg-gray-700"
                             >
                               Open
                             </Link>
@@ -512,7 +512,7 @@ export default function AdminDashboardPage() {
                     ))}
                   </ul>
                 ) : (
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+                  <div className="rounded-lg border border-gray-800 bg-gray-800/50 p-3 text-sm text-gray-400">
                     No items found.
                   </div>
                 )}

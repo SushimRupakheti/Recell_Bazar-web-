@@ -30,7 +30,8 @@ function formatNPR(value: any) {
 
 export default function ItemCard({ item, onDelete }: ItemCardProps) {
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-  const sold = item.isSold === true || String(item.status || "").toLowerCase() === "sold";
+  const statusLower = String(item.status || "").toLowerCase();
+  const sold = statusLower === "sold" || (!statusLower && item.isSold === true);
 
   const rawPhoto = item.photos?.[0];
   const imageUrl = rawPhoto
