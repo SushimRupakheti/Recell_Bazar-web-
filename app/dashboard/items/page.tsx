@@ -4,7 +4,13 @@ import Container from "@/app/components/Container";
 import { getAllItems } from "@/lib/api/items";
 
 // Server component
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<{ search?: string }>;
+}) {
+  const params = await searchParams;
+  const search = params?.search || "";
   let items: any[] = [];
   try {
     const res = await getAllItems();
@@ -28,7 +34,7 @@ export default async function Page() {
   return (
     <main className="w-full bg-gray-50 min-h-screen">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-        <ItemsPageClient items={items} />
+        <ItemsPageClient items={items} search={search} />
       </div>
     </main>
   );

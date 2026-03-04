@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import HomeCard from "@/app/components/homeCard";
 
-type Props = { items: any[] };
+type Props = { items: any[]; search?: string };
 
 const getCategory = (it: any) => {
   const candidates = [
@@ -20,24 +20,45 @@ const getCategory = (it: any) => {
   return null;
 };
 
-export default function ItemsPageClient({ items }: Props) {
+const getPhoneModel = (it: any): string =>
+  String(it?.phoneModel || it?.model || it?.name || "");
+
+export default function ItemsPageClient({ items, search = "" }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  // Filter by search query (matches phoneModel or category, case-insensitive)
+  const searchFiltered = useMemo(() => {
+    if (!search) return items;
+    const q = search.toLowerCase();
+    return items.filter((it) => {
+      const model = getPhoneModel(it).toLowerCase();
+      const cat = (getCategory(it) || "").toLowerCase();
+      return model.includes(q) || cat.includes(q);
+    });
+  }, [items, search]);
+
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(items.map(getCategory).filter(Boolean))) as string[];
+    const unique = Array.from(new Set(searchFiltered.map(getCategory).filter(Boolean))) as string[];
     return unique.sort((a, b) => a.localeCompare(b));
-  }, [items]);
+  }, [searchFiltered]);
 
   const filtered = useMemo(() => {
-    if (!selectedCategory) return items;
-    return items.filter((it) => getCategory(it) === selectedCategory);
-  }, [items, selectedCategory]);
+    if (!selectedCategory) return searchFiltered;
+    return searchFiltered.filter((it) => getCategory(it) === selectedCategory);
+  }, [searchFiltered, selectedCategory]);
 
   return (
     <div>
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">All items</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {search ? `Results for "${search}"` : "All items"}
+          </h1>
+          {search && (
+            <span className="text-sm text-gray-500">
+              {searchFiltered.length} item{searchFiltered.length !== 1 ? "s" : ""} found
+            </span>
+          )}
         </div>
       </div>
 

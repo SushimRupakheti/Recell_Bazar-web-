@@ -1,8 +1,9 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Heart, ShoppingCart, User, Search } from "lucide-react";
 import NotificationBell from "./NotificationBell";
 
@@ -14,6 +15,25 @@ const LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState("");
+
+  // Sync input from URL when landing on items page with ?search=
+  useEffect(() => {
+    const q = searchParams?.get("search") || "";
+    setQuery(q);
+  }, [searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (trimmed) {
+      router.push(`/dashboard/items?search=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/dashboard/items");
+    }
+  };
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === href : pathname?.startsWith(href);
@@ -60,14 +80,16 @@ export default function Navbar() {
           {/* Right: Search + Icons */}
           <div className="flex items-center gap-3">
             {/* Search */}
-            <div className="hidden sm:flex items-center w-[320px] md:w-90 lg:w-105 bg-gray-100 rounded-full px-4 py-2">
+            <form onSubmit={handleSearch} className="hidden sm:flex items-center w-[320px] md:w-90 lg:w-105 bg-gray-100 rounded-full px-4 py-2">
               <Search className="h-4 w-4 text-gray-500" />
               <input
                 type="text"
-                placeholder="What are you looking for?"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by phone model or brand..."
                 className="bg-transparent outline-none w-full ml-2 text-sm text-gray-700 placeholder:text-gray-500"
               />
-            </div>
+            </form>
 
             {/* Notifications */}
             <NotificationBell />

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { createItem, ItemPayload } from "@/lib/api/items";
+import { createItem, ItemPayload, getBasePrice, computeFinalPrice, phoneBasePrices } from "@/lib/api/items";
 
 export default function DashboardSellAddDetailsPage() {
   const searchParams = useSearchParams();
@@ -20,6 +20,7 @@ export default function DashboardSellAddDetailsPage() {
   const [liquidDamage, setLiquidDamage] = useState<boolean>(false);
   const [switchOn, setSwitchOn] = useState<boolean>(true);
   const [receiveCall, setReceiveCall] = useState<boolean>(true);
+  const [repairedBoard, setRepairedBoard] = useState<boolean>(false);
   const [features1Condition, setFeatures1Condition] = useState<boolean>(true);
   const [features2Condition, setFeatures2Condition] = useState<boolean>(true);
   const [cameraCondition, setCameraCondition] = useState<boolean>(true);
@@ -31,6 +32,33 @@ export default function DashboardSellAddDetailsPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Live price calculation
+  const basePrice = getBasePrice(brand, model) ?? 0;
+  const finalPrice = React.useMemo(() => {
+    if (!basePrice) return 0;
+    return Math.max(0, Math.round(computeFinalPrice(basePrice, {
+      liquidDamage,
+      switchOn,
+      receiveCall,
+      features1Condition,
+      features2Condition,
+      cameraCondition,
+      displayCondition,
+      displayCracked,
+      displayOriginal,
+      factoryUnlock,
+      chargerAvailable,
+      batteryHealth,
+      year,
+      repairedBoard,
+    })));
+  }, [
+    basePrice, liquidDamage, switchOn, receiveCall,
+    features1Condition, features2Condition, cameraCondition,
+    displayCondition, displayCracked, displayOriginal,
+    factoryUnlock, chargerAvailable, batteryHealth, year, repairedBoard,
+  ]);
 
   useEffect(() => {
     // determine whether the flow was opened from dashboard or public sell
@@ -76,6 +104,7 @@ export default function DashboardSellAddDetailsPage() {
     liquidDamage,
     switchOn,
     receiveCall,
+    repairedBoard,
     features1Condition,
     features2Condition,
     cameraCondition,
@@ -83,6 +112,8 @@ export default function DashboardSellAddDetailsPage() {
     displayCracked,
     displayOriginal,
     photos,
+    basePrice,
+    finalPrice,
   });
 
   const handleSubmit = async () => {
@@ -121,6 +152,26 @@ export default function DashboardSellAddDetailsPage() {
       <p className="text-sm text-gray-500">Sell / SellStart / <span className="text-gray-700">Phone Details</span></p>
       <h1 className="text-3xl font-semibold text-teal-600 mt-4">Answer the questions below:</h1>
 
+      {/* Live Price Preview */}
+      {basePrice > 0 && (
+        <div className="mt-4 rounded-lg border border-teal-200 bg-teal-50 px-5 py-3 flex items-center justify-between">
+          <div>
+            <span className="text-sm text-gray-600">Estimated Value</span>
+            <p className="text-2xl font-bold text-teal-700">
+              Rs {finalPrice.toLocaleString("en-NP")}
+            </p>
+          </div>
+          <div className="text-right text-xs text-gray-500">
+            <p>Base: Rs {basePrice.toLocaleString("en-NP")}</p>
+            {finalPrice < basePrice && (
+              <p className="text-amber-600 font-medium">
+                −{Math.round(((basePrice - finalPrice) / basePrice) * 100)}% deduction
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 flex items-center gap-4">
         {[1, 2, 3, 4].map((s) => (
           <div key={s} className={`w-10 h-10 rounded-full flex items-center justify-center ${step >= s ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
@@ -132,6 +183,10 @@ export default function DashboardSellAddDetailsPage() {
       <div className="mt-8 border-t pt-6">
         {step === 1 && (
           <div>
+            <Question label="Is your phone factory unlocked?">
+              <RadioPair value={factoryUnlock} onChange={setFactoryUnlock} />
+            </Question>
+
             <Question label="Has your phone ever been liquid damage?">
               <RadioPair value={liquidDamage} onChange={setLiquidDamage} />
             </Question>
@@ -164,7 +219,9 @@ export default function DashboardSellAddDetailsPage() {
               <RadioPair value={chargerAvailable} onChange={setChargerAvailable} />
             </Question>
 
-            {/* Removed binary age question per mobile spec (age still editable in final step) */}
+            <Question label="Has the motherboard been repaired?">
+              <RadioPair value={repairedBoard} onChange={setRepairedBoard} />
+            </Question>
           </div>
         )}
 
