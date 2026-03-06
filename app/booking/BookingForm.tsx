@@ -6,6 +6,18 @@ import { useRouter } from "next/navigation";
 type Item = any;
 type User = any;
 
+const DEFAULT_NPR_PER_USD = 142;
+
+function roundToTwo(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+function nprToUsd(amountNpr: number, nprPerUsd: number): number {
+  if (!Number.isFinite(amountNpr) || amountNpr <= 0) return amountNpr;
+  if (!Number.isFinite(nprPerUsd) || nprPerUsd <= 0) return amountNpr;
+  return roundToTwo(amountNpr / nprPerUsd);
+}
+
 /** Helper: check if an item is sold based on backend fields.
  *  `status` is the canonical source of truth.
  */
@@ -107,6 +119,12 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
         return;
       }
 
+      // Your item prices are stored in NPR, but the backend Stripe integration is using USD.
+      // Convert NPR -> USD using 1 USD = 142 NPR (configurable via NEXT_PUBLIC_NPR_PER_USD).
+      const rateRaw = process.env.NEXT_PUBLIC_NPR_PER_USD;
+      const nprPerUsd = rateRaw ? Number(rateRaw) : DEFAULT_NPR_PER_USD;
+      const amountUsd = nprToUsd(amt, nprPerUsd);
+
       const orderPayload = {
         oid: referenceId,
         amt: String(amt),
@@ -124,14 +142,20 @@ export default function BookingForm({ item, user }: { item?: Item; user?: User }
 
       // Create PaymentIntent via backend Stripe Checkout endpoint
       const payload = {
-        amount: amt,
+        // Backend expects USD amount (major unit), and will convert to cents internally.
+        amount: amountUsd,
         productName: itemState?.phoneModel ?? 'Phone',
         productId: itemId,
         buyerName: name,
         buyerEmail: email,
         buyerPhone: number,
         orderId: referenceId,
-        metadata: orderPayload,
+        metadata: {
+          ...orderPayload,
+          amountNpr: amt,
+          amountUsd,
+          nprPerUsd,
+        },
       };
 
       // Debug: log the EXACT payload being sent

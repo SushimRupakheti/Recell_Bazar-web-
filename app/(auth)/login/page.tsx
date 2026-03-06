@@ -22,6 +22,10 @@ export default function LoginPage() {
         <LoginForm />
 
         <p className="auth-footer">
+          <Link href="/forget_password">Forgot password?</Link>
+        </p>
+
+        <p className="auth-footer">
           Didn’t have an account?{" "}
           <Link href="/register">Sign Up</Link>
         </p>

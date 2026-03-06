@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import RegisterForm from "../_components/register_form";
 import AuthHeader from "@/app/components/auth_header";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function RegisterPage() {
   return (

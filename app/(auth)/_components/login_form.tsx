@@ -6,11 +6,13 @@ import { loginSchema, LoginFormData } from "../schema";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { handleLogin } from "@/lib/actions/auth-action"; // <-- backend API function
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -85,12 +87,23 @@ const onSubmit = async (data: LoginFormData) => {
         </div>
 
         <div>
-          <input
-            type="password"
-            placeholder="Password"
-            {...register("password")}
-            className="border p-2 rounded w-full mb-2"
-          />
+          <div className="relative" style={{ marginBottom: "15px" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+              className="border p-2 rounded w-full"
+              style={{ paddingRight: "2.75rem", marginBottom: 0 }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {errors.password && (
             <span className="text-red-500">{errors.password.message}</span>
           )}
